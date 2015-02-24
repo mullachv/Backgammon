@@ -89,7 +89,7 @@ angular.module('myApp', []).factory('gameLogic', function() {
      * Check if a move is valid. White blots move up in index, black blots move down. Blots cannot move to spaces where
      * more than 2 or more blots of the other color reside.
      * it can move is 1.
-     * @param board
+     * @param {Array.<Array.<string>>} board
      * @param diceArray
      * @param fromPoint
      * @param toPoint
