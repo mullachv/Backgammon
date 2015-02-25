@@ -51,6 +51,163 @@
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board
                 }
 
+                function isMoveOk(params){
+                    var board = params.board;
+                    var fromDelta = params.fromDelta;
+                    var toDelta = params.toDelta;
+                    var dice = params.dice;
+                    var turnIndexBeforeMove = params.turnIndexBeforeMove;
+                    var currentPlayer;
+                    var opposingPlayer;
+                    var remainingMoves = totalMoves(dice)
+
+                    if(turnIndexBeforeMove === 0){
+                        currentPlayer = 'W';
+                        opposingPlayer = 'B';
+                    }else{
+                        currentPlayer = 'B';
+                        opposingPlayer = 'W';
+                    }
+
+                    //Checks if the player has utilized full dice roll, if not check if other legal moves availible
+                    if(!hasUsedFullRoll(fromDelta,toDelta,remainingMoves)){
+
+                        var unusedRolls = getUnusedRolls(fromDelta, toDelta , remainingMoves);
+
+                        if(hasLegalMove(board,unusedRolls,currentPlayer)){
+                            throw new Error(ILLEGAL_CODE.INCOMPLETE_MOVE);
+                        }
+                    }
+
+                    //Check that all blots that were taken entered before other moves were made
+                    for(var i = 0; i < toDelta.length; i++){
+                        if(toDelta[i] === 1 || toDelta[i] === 26){
+                            //If player didn't move off the taken spot then check if any other moves were made
+                            for(var j = 0; j<toDelta.length;j++){
+
+                                //If a move was made that didn't remove a blot back onto the board then decalre an
+                                //illegal move
+                                if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
+                                    !(fromDelta[j] === 1 || fromDelta[j] === 26)){
+                                    throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
+                                }
+
+                            }
+
+                        }
+                    }
+
+                    //Ensure that player exiting the board is allowed to
+                    var remainingRolls = [[]];
+                    for(var i = 0; i < toDelta.length; i++){
+                        if(currentPlayer === 'W' && toDelta[i] === 27){
+                            if(!canExit(board,currentPlayer)){
+                                return false;
+                            }
+                        }
+
+                        if(currentPlayer === 'W' && toDelta[i] === 27){
+                            if(!canExit(board,currentPlayer)){
+                                return false;
+                            }
+                        }
+                    }
+
+                    //Check that the to point is not held by opposing player
+                    for( var i = 0; i < toDelta; i++){
+                        if(heldBy(board, toDelta[i]) === opposingPlayer){
+                            return false;
+                        }
+                    }
+
+                    //check intermediate points for each remaining roll
+                    var numberOfMovesTaken=0;
+                    for(var i = 0; i<fromDelta.length;i++){
+                        if(fromDelta[i] !== ''){
+                            numberOfMovesTaken++;
+                        }
+                    }
+                    //One move for two rolls
+                    if(remainingMoves.length === 2 && numberOfMovesTaken === 1){
+
+                        if(currentPlayer === 'W'){
+                            if(heldBy(board,fromDelta[0] + remainingMoves[0]) === 'B' &&
+                                heldBy(board, fromDelta[0] + remainingMoves[1]) === 'B'){
+                                return false;
+                            }
+                        }
+
+                        if(currentPlayer ==='B'){
+                            if(heldBy(board,fromDelta[0] - remainingMoves[0]) === 'W' &&
+                                heldBy(board, fromDelta[0] - remainingMoves[1]) === 'W'){
+                                return false;
+                            }
+                        }
+                        //Case of rolling doubles
+                    }else if (remainingMoves.length === 4){
+
+                        for( var i = 0; i<=numberOfMovesTaken; i++){
+
+                            if(currentPlayer === 'W'){
+                                for(var j = fromDelta[i]; j<= toDelta[i]; j + (remainingMoves[0])){
+                                    if(heldBy(board, j) === 'B'){
+                                        return false;
+                                    }
+                                }
+                            }else{
+                                for(var j = fromDelta[i]; j>= toDelta[i]; j - remainingMoves[0]){
+                                    if(heldBy(board, j) === 'W'){
+                                        return false;
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                    //Iterate through all rolls and check that all moves can be made together
+                    var unusedRolls = remainingMoves;
+
+                    for(var i = 0; i < fromDelta.length; i++){
+                        if(fromDelta[i] !== '' && toDelta[i] !== 0 && toDelta[i] !== 27){
+                            //Check what rolls are left over after each move is made.
+                            unusedRolls = (getUnusedRolls(fromDelta[i], toDelta[i], unusedRolls));
+                        }
+                    }
+
+                    for(var i = 0; i< fromDelta.length; i++){
+                        if(toDelta[i] === 0 || toDelta[i] === 27){
+
+                            var totalNumberOfSpaces = Math.abs(fromDelta[i] - toDelta[i]);
+                            //Trying to exit but no moves left
+                            if(unusedRolls.length === 0){
+                                return false;
+                            }
+
+                            //Else check that there is a large enough roll total to exit, and remove from unused, look
+                            //for smallest amount that will get off the board
+                            unusedRolls.sort(function(a, b){return b-a});
+                            var runningTotal = 0;
+
+                            for(var j = unusedRolls.length + 1; j >= 0 ;j){
+
+                                if(runningTotal + unusedRolls[j] >= totalNumberOfSpaces){
+                                    //Remove the elements that are used
+                                    unusedRolls.splice(j, unusedRolls.length - (j + 1));
+                                    runningTotal = 0;
+                                    break;
+                                }
+
+                            }
+
+                        }
+                    }
+
+                    return true;
+
+
+                }
+
 
                 /**
                  *
@@ -67,7 +224,6 @@
                 function createMove(board, fromDelta, toDelta, dice, turnIndexBeforeMove){
                     //To track remaining dice moves that haven't been taken
                     var remainingMoves = totalMoves(dice);
-                    var exitBoard = false;
                     var currentPlayer;
                     var opposingPlayer;
 
@@ -113,8 +269,12 @@
                         if(currentPlayer === 'W' && toDelta[i] === 27){
                             if(!canExit(board,currentPlayer)){
                                 return Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }else{
-                                //Continue here
+                            }
+                        }
+
+                        if(currentPlayer === 'W' && toDelta[i] === 27){
+                            if(!canExit(board,currentPlayer)){
+                                return Error(ILLEGAL_CODE.ILLEGAL_MOVE);
                             }
                         }
                     }
@@ -174,12 +334,178 @@
 
                     }
 
+                    //Iterate through all rolls and check that all moves can be made together
+                    var unusedRolls = remainingMoves;
+
+                    for(var i = 0; i < fromDelta.length; i++){
+                        if(fromDelta[i] !== '' && toDelta[i] !== 0 && toDelta[i] !== 27){
+                            //Check what rolls are left over after each move is made.
+                            unusedRolls = (getUnusedRolls(fromDelta[i], toDelta[i], unusedRolls));
+                        }
+                    }
+
+                    for(var i = 0; i< fromDelta.length; i++){
+                        if(toDelta[i] === 0 || toDelta[i] === 27){
+
+                            var totalNumberOfSpaces = Math.abs(fromDelta[i] - toDelta[i]);
+                            //Trying to exit but no moves left
+                            if(unusedRolls.length === 0){
+                                throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
+                            }
+
+                            //Else check that there is a large enough roll total to exit, and remove from unused, look
+                            //for smallest amount that will get off the board
+                            unusedRolls.sort(function(a, b){return b-a});
+                            var runningTotal = 0;
+
+                            for(var j = unusedRolls.length + 1; j >= 0 ;j){
+
+                                if(runningTotal + unusedRolls[j] >= totalNumberOfSpaces){
+                                    //Remove the elements that are used
+                                    unusedRolls.splice(j, unusedRolls.length - (j + 1));
+                                    runningTotal = 0;
+                                    break;
+                                }
+
+                            }
+
+                        }
+                    }
 
 
+                    //All tests passed then alter the board, set turn index and return
+                    var currentBoard = board;
+                    for(var i = 0; i < fromDelta.length; i++){
+                        if(fromDelta[i] !== ''){
+                            currentBoard = makeMove(currentBoard, fromDelta[i], toDelta[i],currentPlayer);
+                        }
+                    }
+
+                    var setTurn;
+                    //check of there is an end of game scenario
+                    if(hasWon(currentPlayer, board)){
+                        setTurn = {endMatch: {endMatchScores:
+                            (currentPlayer === 'W' ? [1, 0] : (currentPlayer === 'B' ? [0, 1] : [0, 0]))}};
+                    }else{
+                        setTurn = {setTurn: {turnIndex: 1 - turnIndexBeforeMove}};
+                    }
+
+                    return [setTurn,
+                        {set:{key:'board', value: currentBoard}},
+                        {set:{key:'fromDelta', value:{fromDelta:toDelta}}},
+                        {set:{key:'toDelta', value:{toDelta:toDelta}}},
+                        {set:{key:'dice',value:{dice:dice}}}];
+
+                }
 
 
+                /**
+                 * Returns true if a player has won the game.
+                 * @param player
+                 * @param board
+                 * @returns {boolean}
+                 */
+                function hasWon(player, board){
+                    var count = 0;
+                    var row = winIndex(player);
+
+                    for(var i = 0; i< board[row].length;i++){
+                        if(board[row][i] === player){
+                            count++;
+                        }
+                    }
+
+                    return count === 15;
+
+                }
+
+                /**
+                 * Returns a board after a single move is made.
+                 * @param board
+                 * @param from
+                 * @param to
+                 * @param player
+                 * @returns {*}
+                 */
+                function makeMove(board, from, to, player){
+
+                    //remove piece from current spot get furthest element index
+                    for(var i = 14; i >= 0; i-- ){
+                        if(board[from][i] === player){
+                            board[from][i] = '';
+                            break;
+                        }
+                    }
+
+                    //check if to spot has an opposing player
+                    if(board [to][0] === opposingPlayer(player)){
+                        //Replace with current player
+                        board [to][0] = player;
+
+                        //Put opposing player in taken position
+                        var row = takenIndex(opposingPlayer(player));
+                        var column = firstEmptySpot(board, row);
+
+                        board[row][column] = opposingPlayer(player);
+                        return board;
+                    }
+
+                    //if no opposing player then find first empty spot and place piece
+                    var column = firstEmptySpot(board, to);
+                    board[to][column] = player;
 
 
+                }
+
+                /**
+                 * Gives the color of the opponent given a player
+                 * @param player
+                 * @returns {string}
+                 */
+                function opposingPlayer(player){
+                    if(player === 'W'){
+                        return 'B';
+                    }else{
+                        return 'W';
+                    }
+                }
+
+                /**
+                 * Given a player returns the index of where the player is held in case of capture.
+                 * @param player
+                 */
+                function takenIndex(player){
+                    if(player === 'W'){
+                        return 1;
+                    }else{
+                        return 26;
+                    }
+                }
+
+                /**
+                 * Returns teh index of the row that
+                 * @param player
+                 * @returns {number}
+                 */
+                function winIndex(player){
+                    if(player === 'W'){
+                        return 27;
+                    }else{
+                        return 0;
+                    }
+                }
+
+                /**
+                 * Finds the first empty position given a row index and a board.
+                 * @param board
+                 * @param row
+                 */
+                function firstEmptySpot(board, row){
+                    for(var i = 0; i < board[row].length; i++){
+                        if(board[row][i] === ''){
+                            return i;
+                        }
+                    }
                 }
 
                 /**
@@ -412,76 +738,9 @@
                 }
 
 
-                /*function canMove(board, fromDelta, toDelta, remainingMoves, player){
-
-                    var spacesMoved = [];
-
-                    //Get the number of spaces that the blot moved
-                    for(var i = 0; i < toDelta.length; i++){
-                        if(fromDelta[i] !== ''){
-                            spacesMoved.push(Math.abs(fromDelta - toDelta));
-                        }
-                    }
-                    var rollSum = 0;
-                    var rollObject = {};
-                    var tempRolls = [];
-
-
-                    //Check if that is a reachable position
-                    for(var i = remainingMoves.length - 1; i >= 0; i--){
-                        rollSum = remainingMoves[i];
-                        tempRolls = [];
-                        tempRolls.push(remainingMoves[i]);
-
-                        for(var j = i -1; j>= 0; j--){
-                            rollSum = rollSum + remainingMoves[j];
-                            tempRolls.push(remainingMoves[j]);
-
-                            for(var k = spacesMoved.length - 1; k >= 0; k--){
-                                if(rollSum === spacesMoved[k]){
-
-                                    //Check that the opposing player doesn't hold the positions between start and
-                                    //end point
-
-
-                                    rollObject.push({movedFromPosition:k, rolls:tempRolls});
-
-                                    //Remove the tempRolls from the remaining moves and spaces moved
-                                    spacesMoved.splice(k,1);
-                                    remainingMoves.splice(j,i-j);
-
-                                }
-                            }
-
-                        }
-                    }
-
-                    //If there are moves remaining to be made then see if it is possible to move any other pieces
-                    if(remainingMoves.length > 0){
-
-                    }
-
-
-
-                }*/
-
                 return {
                     isMoveOk: isMoveOk,
-                    getFirstMove: getFirstMove,
                     createMove: createMove,
-                    getJumpMoves: getJumpMoves,
-                    getSimpleMoves: getSimpleMoves,
-                    getAllPossibleMoves: getAllPossibleMoves,
-                    hasMandatoryJumps: hasMandatoryJumps,
-                    getJumpedDelta: getJumpedDelta,
-                    isOwnColor: isOwnColor,
-                    getIllegalEmailObj: getIllegalEmailObj,
-                    getWinner: getWinner,
-                    getColor: getColor,
-                    getKind: getKind,
-                    isEmptyObj: isEmptyObj,
-                    isSimpleMove: isSimpleMove,
-                    isJumpMove: isJumpMove,
                     getInitialBoard: getInitialBoard
                 };
             }]);
