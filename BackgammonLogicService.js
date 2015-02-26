@@ -10,6 +10,8 @@
                 // naming convention should be enough.
                 var ILLEGAL_CODE = enumService.ILLEGAL_CODE;
 
+
+
                 /**
                  * Returns the initial backgammon board as a 28 X 15 board. Index 0 and 27 represent blots exiting the board,
                  * Index 1 and 26 represent blots taken during game play.
@@ -56,10 +58,18 @@
                     var fromDelta = params.fromDelta;
                     var toDelta = params.toDelta;
                     var dice = params.dice;
-                    var turnIndexBeforeMove = params.turnIndexBeforeMove;
+                    var turnIndexBeforeMove = params.turnIndex;
                     var currentPlayer;
                     var opposingPlayer;
                     var remainingMoves = totalMoves(dice)
+
+                    if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined){
+                        return false;
+                    }
+
+                    if (board === null || board === undefined || board === ''){
+                        board =getInitialBoard();
+                    }
 
                     if(turnIndexBeforeMove === 0){
                         currentPlayer = 'W';
@@ -227,6 +237,10 @@
                     var currentPlayer;
                     var opposingPlayer;
 
+                    if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined){
+                        throw new Error(ILLEGAL_CODE.NO_PLAYER);
+                    }
+
                     if(turnIndexBeforeMove === 0){
                         currentPlayer = 'W';
                         opposingPlayer = 'B';
@@ -390,11 +404,14 @@
                         setTurn = {setTurn: {turnIndex: 1 - turnIndexBeforeMove}};
                     }
 
-                    return [setTurn,
+                    var returnValue = [setTurn,
                         {set:{key:'board', value: currentBoard}},
-                        {set:{key:'fromDelta', value:{fromDelta:toDelta}}},
+                        {set:{key:'fromDelta', value:{fromDelta:fromDelta}}},
                         {set:{key:'toDelta', value:{toDelta:toDelta}}},
                         {set:{key:'dice',value:{dice:dice}}}];
+
+                    console.log(returnValue);
+                    return returnValue;
 
                 }
 
