@@ -1,15 +1,21 @@
 (function () {
     "use strict";
 
-    angular.module('myApp').factory('backGammonLogicService',
-        ['enumService',
-            function (enumService) {
+    angular.module('myApp', []).factory('backGammonLogicService',
+            function () {
 
                 // This is a simple implementation for constant and enum, so the value
                 // can be changed. Since this is a small personal project, all caps
                 // naming convention should be enough.
-                var ILLEGAL_CODE = enumService.ILLEGAL_CODE;
+                //var ILLEGAL_CODE = enumService.ILLEGAL_CODE;
+                var ILLEGAL_CODE,
 
+                    ILLEGAL_CODE = {
+                        ILLEGAL_MOVE: 'ILLEGAL_MOVE',
+                        ILLEGAL_DELTA: 'ILLEGAL_DELTA',
+                        INCOMPLETE_MOVE: 'INCOMPLETE_MOVE',
+                        NO_PLAYER:'NO_PLAYER'
+                    };
 
 
                 /**
@@ -25,32 +31,32 @@
                 function getInitialBoard() {
                     return [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20
-                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19
-                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14
-                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//12
-                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//11
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9
-                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7
-                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2
-                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board
+                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//12 14
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//11 15
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27
                 }
 
                 function isMoveOk(params){
@@ -61,45 +67,75 @@
                     var turnIndexBeforeMove = params.turnIndex;
                     var currentPlayer;
                     var opposingPlayer;
-                    var remainingMoves = totalMoves(dice)
-
+                    var remainingMoves = totalMoves(dice);
                     if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined){
                         return false;
                     }
 
-                    if (board === null || board === undefined || board === ''){
+                    if (board === null || board === undefined || board === '' || board === [[]]){
                         board =getInitialBoard();
                     }
-
                     if(turnIndexBeforeMove === 0){
                         currentPlayer = 'W';
                         opposingPlayer = 'B';
-                    }else{
+                    }else if(turnIndexBeforeMove === 1){
                         currentPlayer = 'B';
                         opposingPlayer = 'W';
+                    }else{
+                        return false;
                     }
+                    //Check that the to point is not the blots taken spot
+                    for(var i = 0 ; i < toDelta.length; i++){
+                        if(toDelta[i] === 1 || toDelta[i] === 26){
+                            return false;
+                        }
+                    }
+
+
+                    //Check that the player is actually on the from point
+                    var numberOfPiecesFound = 0;
+                    for (var j = 0; j < fromDelta.length;j++){
+                        var row = fromDelta[j];
+                        for(var i = 0; i < 15 ; i++){
+                            if(board[row][i] === currentPlayer){
+                                numberOfPiecesFound++;
+                            }
+                        }
+                        if(numberOfPiecesFound === 0){
+                            return false;
+                        }
+                        numberOfPiecesFound = 0;
+                    }
+
+                    console.log(103);
 
                     //Checks if the player has utilized full dice roll, if not check if other legal moves availible
                     if(!hasUsedFullRoll(fromDelta,toDelta,remainingMoves)){
 
-                        var unusedRolls = getUnusedRolls(fromDelta, toDelta , remainingMoves);
+                        var unusedRolls = remainingMoves;
+                        unusedRolls = [];
+
+                        angular.copy(remainingMoves,unusedRolls);
+                        unusedRolls = getUnusedRolls(fromDelta, toDelta , unusedRolls);
 
                         if(hasLegalMove(board,unusedRolls,currentPlayer)){
-                            throw new Error(ILLEGAL_CODE.INCOMPLETE_MOVE);
+                            return false;
                         }
                     }
 
+                    console.log(119);
                     //Check that all blots that were taken entered before other moves were made
                     for(var i = 0; i < toDelta.length; i++){
-                        if(toDelta[i] === 1 || toDelta[i] === 26){
+                        if(playerCaptured(currentPlayer,board)){
                             //If player didn't move off the taken spot then check if any other moves were made
                             for(var j = 0; j<toDelta.length;j++){
 
                                 //If a move was made that didn't remove a blot back onto the board then decalre an
                                 //illegal move
+
                                 if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
                                     !(fromDelta[j] === 1 || fromDelta[j] === 26)){
-                                    throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
+                                    return false;
                                 }
 
                             }
@@ -116,15 +152,15 @@
                             }
                         }
 
-                        if(currentPlayer === 'W' && toDelta[i] === 27){
+                        if(currentPlayer === 'B' && toDelta[i] === 0){
                             if(!canExit(board,currentPlayer)){
                                 return false;
                             }
                         }
                     }
 
-                    //Check that the to point is not held by opposing player
-                    for( var i = 0; i < toDelta; i++){
+
+                    for( var i = 0; i < toDelta.length; i++){
                         if(heldBy(board, toDelta[i]) === opposingPlayer){
                             return false;
                         }
@@ -135,6 +171,8 @@
                     for(var i = 0; i<fromDelta.length;i++){
                         if(fromDelta[i] !== ''){
                             numberOfMovesTaken++;
+                            console.log(numberOfMovesTaken);
+                            console.log(remainingMoves);
                         }
                     }
                     //One move for two rolls
@@ -156,16 +194,18 @@
                         //Case of rolling doubles
                     }else if (remainingMoves.length === 4){
 
-                        for( var i = 0; i<=numberOfMovesTaken; i++){
+                        console.log("numberOfMovesTaken: " + numberOfMovesTaken)
 
+                        for( var i = 0; i<=numberOfMovesTaken; i++){
+                            console.log("ENTERNED LOOP");
                             if(currentPlayer === 'W'){
-                                for(var j = fromDelta[i]; j<= toDelta[i]; j + (remainingMoves[0])){
+                                for(var j = fromDelta[i]; j<= toDelta[i]; j = j + (remainingMoves[0])){
                                     if(heldBy(board, j) === 'B'){
                                         return false;
                                     }
                                 }
                             }else{
-                                for(var j = fromDelta[i]; j>= toDelta[i]; j - remainingMoves[0]){
+                                for(var j = fromDelta[i]; j>= toDelta[i];j = j - remainingMoves[0]){
                                     if(heldBy(board, j) === 'W'){
                                         return false;
                                     }
@@ -199,7 +239,7 @@
                             unusedRolls.sort(function(a, b){return b-a});
                             var runningTotal = 0;
 
-                            for(var j = unusedRolls.length + 1; j >= 0 ;j){
+                            for(var j = unusedRolls.length; j >= 0 ;j--){
 
                                 if(runningTotal + unusedRolls[j] >= totalNumberOfSpaces){
                                     //Remove the elements that are used
@@ -207,15 +247,27 @@
                                     runningTotal = 0;
                                     break;
                                 }
-
                             }
-
                         }
                     }
-
                     return true;
+                }
 
+                function playerCaptured(player, board){
+                    var row;
 
+                    if(player === 'W'){
+                        row = 1;
+                    }else{
+                        row =26;
+                    }
+
+                    for(var i = 0; i<15;i++){
+                        if(board[row][i] === player){
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
 
@@ -577,6 +629,7 @@
                 function hasUsedFullRoll(fromDelta, toDelta, remainingMoves){
 
                     var totalDice = 0;
+                    console.log(toDelta);
 
                     //Sum of total dice rolls
                     for(var i = 0 ; i< remainingMoves.length; i++){
@@ -588,9 +641,18 @@
 
                     //Sum of total spaces moved
                     var totalDelta =0;
-                    for(var i = 0; i< toDelta; i++){
+                    for(var i = 0; i< toDelta.length; i++){
                         if(toDelta[i] !== ''){
                             totalDelta = totalDelta + Math.abs(toDelta - fromDelta);
+                        }
+                    }
+
+                    //If there are unaccounted for moves check if they are player exiting the board
+                    if(totalDelta > totalDice){
+                        for(var i = 0; toDelta.length; i++){
+                            if(toDelta[i] === 0 || toDelta[i] === 27){
+                                return true;
+                            }
                         }
                     }
 
@@ -623,13 +685,15 @@
                     for(var i = 0 ; i < deltaArray.length; i++){
                         for( var j = remainingMoves.length -1 ; j>=0;j--){
                             sum = 0;
-                            for (var k = j - 1; k>=0;k--){
-                                if(remainingMoves[k] + sum === deltaArray[i]){
-                                    remainingMoves.splice(k,(j-k));
+                            for (var k = j; k>=0;k--){
+                                sum = sum + remainingMoves[k];
+                                if(sum === deltaArray[i]){
+                                    remainingMoves.splice(k,(j + 1));
                                 }
                             }
                         }
                     }
+
                     return remainingMoves;
                 }
 
@@ -737,7 +801,7 @@
 
                     if(player === 'B'){
                         for(var i = 27; i >= 2; i--){
-                            for(var j = 0; j <= 15; j++){
+                            for(var j = 0; j < 15; j++){
                                 if(board[i][j] === 'B'){
                                     if(i > 7){
                                         return false;
@@ -760,5 +824,5 @@
                     createMove: createMove,
                     getInitialBoard: getInitialBoard
                 };
-            }]);
+            });
 }());
