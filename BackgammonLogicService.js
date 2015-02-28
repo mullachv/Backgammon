@@ -69,7 +69,10 @@
                     var opposingPlayer;
                     var remainingMoves = totalMoves(dice);
                     console.log(toDelta);
-                    if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined){
+
+
+                    if((dice[0] != dice [1] && (fromDelta.length > 2 || toDelta.length > 2)) ||
+                        fromDelta.length>4 || toDelta.length >4){
                         return false;
                     }
 
@@ -222,11 +225,6 @@
                         if(toDelta[i] === 0 || toDelta[i] === 27){
 
                             var totalNumberOfSpaces = Math.abs(fromDelta[i] - toDelta[i]);
-                            //Trying to exit but no moves left
-                            console.log('unusedRolls' + unusedRolls);
-                            if(unusedRolls.length === 0){
-                                return false;
-                            }
 
                             //Else check that there is a large enough roll total to exit, and remove from unused, look
                             //for smallest amount that will get off the board
@@ -284,13 +282,14 @@
                     remainingMoves = totalMoves(remainingMoves);
                     var currentPlayer;
                     var opposingPlayer;
-                    console.log(turnIndexBeforeMove === null);
+                    console.log(toDelta);
 
-                    if (board === null || board === undefined || board === '' || board === [
-                        []
-                    ]) {
+
+                    if (board === null || board === undefined || board === '' || board === [[]]) {
                         board = getInitialBoard();
                     }
+                    console.log(board);
+
                     if (turnIndexBeforeMove === 0) {
                         currentPlayer = 'W';
                         opposingPlayer = 'B';
@@ -301,7 +300,9 @@
                         throw new Error(ILLEGAL_CODE.NO_PLAYER);
                     }
                     //Check that the to point is not the blots taken spot
+                    console.log('tolength' + toDelta.length);
                     for (var i = 0; i < toDelta.length; i++) {
+                        console.log('todeltaValue' + toDelta[i]);
                         if (toDelta[i] === 1 || toDelta[i] === 26) {
                             throw new Error(ILLEGAL_CODE.ILLEGAL_DELTA);
                         }
