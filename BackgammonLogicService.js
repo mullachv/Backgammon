@@ -68,7 +68,7 @@
                     var currentPlayer;
                     var opposingPlayer;
                     var remainingMoves = totalMoves(dice);
-
+                    console.log(toDelta);
                     if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined){
                         return false;
                     }
@@ -108,8 +108,6 @@
                         numberOfPiecesFound = 0;
                     }
 
-                    console.log(103);
-
                     //Checks if the player has utilized full dice roll, if not check if other legal moves availible
                     if(!hasUsedFullRoll(fromDelta,toDelta,remainingMoves)){
 
@@ -124,7 +122,6 @@
                         }
                     }
 
-                    console.log(119);
                     //Check that all blots that were taken entered before other moves were made
                     for(var i = 0; i < toDelta.length; i++){
                         if(playerCaptured(currentPlayer,board)){
@@ -172,8 +169,6 @@
                     for(var i = 0; i<fromDelta.length;i++){
                         if(fromDelta[i] !== ''){
                             numberOfMovesTaken++;
-                            console.log(numberOfMovesTaken);
-                            console.log(remainingMoves);
                         }
                     }
                     //One move for two rolls
@@ -194,8 +189,6 @@
                         }
                         //Case of rolling doubles
                     }else if (remainingMoves.length === 4){
-
-                        console.log("numberOfMovesTaken: " + numberOfMovesTaken)
 
                         for( var i = 0; i<=numberOfMovesTaken; i++){
                             if(currentPlayer === 'W'){
@@ -221,15 +214,16 @@
                     for(var i = 0; i < fromDelta.length; i++){
                         if(fromDelta[i] !== '' && toDelta[i] !== 0 && toDelta[i] !== 27){
                             //Check what rolls are left over after each move is made.
-                            unusedRolls = (getUnusedRolls(fromDelta[i], toDelta[i], unusedRolls));
+                            unusedRolls = (getUnusedRollSinglePoint(fromDelta[i], toDelta[i], unusedRolls));
                         }
                     }
-
+                    console.log(toDelta);
                     for(var i = 0; i< fromDelta.length; i++){
                         if(toDelta[i] === 0 || toDelta[i] === 27){
 
                             var totalNumberOfSpaces = Math.abs(fromDelta[i] - toDelta[i]);
                             //Trying to exit but no moves left
+                            console.log('unusedRolls' + unusedRolls);
                             if(unusedRolls.length === 0){
                                 return false;
                             }
@@ -290,11 +284,7 @@
                     remainingMoves = totalMoves(remainingMoves);
                     var currentPlayer;
                     var opposingPlayer;
-
-                    console.log(dice);
-                    if (turnIndexBeforeMove === null || turnIndexBeforeMove === undefined) {
-                        throw new Error(ILLEGAL_CODE.NO_PLAYER);
-                    }
+                    console.log(turnIndexBeforeMove === null);
 
                     if (board === null || board === undefined || board === '' || board === [
                         []
@@ -317,7 +307,6 @@
                         }
                     }
 
-
                     //Check that the player is actually on the from point
                     var numberOfPiecesFound = 0;
                     for (var j = 0; j < fromDelta.length; j++) {
@@ -333,8 +322,6 @@
                         numberOfPiecesFound = 0;
                     }
 
-                    console.log(103);
-
                     //Checks if the player has utilized full dice roll, if not check if other legal moves availible
                     if (!hasUsedFullRoll(fromDelta, toDelta, remainingMoves)) {
 
@@ -344,12 +331,20 @@
                         angular.copy(remainingMoves, unusedRolls);
                         unusedRolls = getUnusedRolls(fromDelta, toDelta, unusedRolls);
 
-                        if (hasLegalMove(board, unusedRolls, currentPlayer)) {
+                        //Board state after moves to check if there would be moves availible in the future state.
+                        var projectedBoard =[[]];
+                        angular.copy(board,projectedBoard);
+                        for (var i = 0; i < fromDelta.length; i++) {
+                            if (fromDelta[i] !== '') {
+                                projectedBoard = makeMove(projectedBoard, fromDelta[i], toDelta[i], currentPlayer);
+                            }
+                        }
+
+                        if (hasLegalMove(projectedBoard, unusedRolls, currentPlayer)) {
                             throw new Error(ILLEGAL_CODE.INCOMPLETE_MOVE);
                         }
                     }
 
-                    console.log(119);
                     //Check that all blots that were taken entered before other moves were made
                     for (var i = 0; i < toDelta.length; i++) {
                         if (playerCaptured(currentPlayer, board)) {
@@ -370,9 +365,6 @@
                     }
 
                     //Ensure that player exiting the board is allowed to
-                    var remainingRolls = [
-                        []
-                    ];
                     for (var i = 0; i < toDelta.length; i++) {
                         if (currentPlayer === 'W' && toDelta[i] === 27) {
                             if (!canExit(board, currentPlayer)) {
@@ -399,8 +391,6 @@
                     for (var i = 0; i < fromDelta.length; i++) {
                         if (fromDelta[i] !== '') {
                             numberOfMovesTaken++;
-                            console.log(numberOfMovesTaken);
-                            console.log(remainingMoves);
                         }
                     }
                     //One move for two rolls
@@ -421,8 +411,6 @@
                         }
                         //Case of rolling doubles
                     } else if (remainingMoves.length === 4) {
-
-                        console.log("numberOfMovesTaken: " + numberOfMovesTaken)
 
                         for (var i = 0; i <= numberOfMovesTaken; i++) {
                             if (currentPlayer === 'W') {
@@ -482,13 +470,11 @@
 
                     //All tests passed then alter the board, set turn index and return
                     var currentBoard = board;
-                    console.log(currentBoard);
                     for (var i = 0; i < fromDelta.length; i++) {
                         if (fromDelta[i] !== '') {
                             currentBoard = makeMove(currentBoard, fromDelta[i], toDelta[i], currentPlayer);
                         }
                     }
-                    console.log(currentBoard);
 
                     var setTurn;
                     //check of there is an end of game scenario
@@ -504,164 +490,9 @@
                         {set: {key: 'toDelta', value: {toDelta: toDelta}}},
                         {set: {key: 'dice', value: {dice: dice}}}];
 
-                    console.log(dice);
                     return returnValue;
 
                 }
-
-                    /*****************************************
-                     * Start original Code here
-                     ******************************************/
-                    /*if(turnIndexBeforeMove === null || turnIndexBeforeMove === undefined || turnIndexBeforeMove > 1){
-                        throw new Error(ILLEGAL_CODE.NO_PLAYER);
-                    }
-
-                    if(turnIndexBeforeMove === 0){
-                        currentPlayer = 'W';
-                        opposingPlayer = 'B';
-                    }else{
-                        currentPlayer = 'B';
-                        opposingPlayer = 'W';
-                    }
-
-                    //Checks if the player has utilized full dice roll, if not check if other legal moves availible
-                    if(!hasUsedFullRoll(fromDelta,toDelta,remainingMoves)){
-
-                        var unusedRolls = getUnusedRolls(fromDelta, toDelta , remainingMoves);
-
-                        if(hasLegalMove(board,unusedRolls,currentPlayer)){
-                            throw new Error(ILLEGAL_CODE.INCOMPLETE_MOVE);
-                        }
-                    }
-
-                    //Check that all blots that were taken entered before other moves were made
-                    for(var i = 0; i < toDelta.length; i++){
-                        if(toDelta[i] === 1 || toDelta[i] === 26){
-                            //If player didn't move off the taken spot then check if any other moves were made
-                            for(var j = 0; j<toDelta.length;j++){
-
-                                //If a move was made that didn't remove a blot back onto the board then decalre an
-                                //illegal move
-                                if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
-                                    !(fromDelta[j] === 1 || fromDelta[j] === 26)){
-                                    throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                                }
-
-                            }
-
-                        }
-                    }
-
-                    //Ensure that player exiting the board is allowed to
-                    var remainingRolls = [[]];
-                    for(var i = 0; i < toDelta.length; i++){
-                        if(currentPlayer === 'W' && toDelta[i] === 27){
-                            if(!canExit(board,currentPlayer)){
-                                return Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }
-                        }
-
-                        if(currentPlayer === 'W' && toDelta[i] === 27){
-                            if(!canExit(board,currentPlayer)){
-                                return Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }
-                        }
-                    }
-
-                    //Check that the to point is not held by opposing player
-                    for( var i = 0; i < toDelta; i++){
-                        if(heldBy(board, toDelta[i]) === opposingPlayer){
-                            throw new Error(ILLEGAL_CODE.ILLEGAL_DELTA);
-                        }
-                    }
-
-                    //check intermediate points for each remaining roll
-                    var numberOfMovesTaken=0;
-                    for(var i = 0; i<fromDelta.length;i++){
-                        if(fromDelta[i] !== ''){
-                            numberOfMovesTaken++;
-                        }
-                    }
-                    //One move for two rolls
-                    if(remainingMoves.length === 2 && numberOfMovesTaken === 1){
-
-                        if(currentPlayer === 'W'){
-                            if(heldBy(board,fromDelta[0] + remainingMoves[0]) === 'B' &&
-                            heldBy(board, fromDelta[0] + remainingMoves[1]) === 'B'){
-                                throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }
-                        }
-
-                        if(currentPlayer ==='B'){
-                            if(heldBy(board,fromDelta[0] - remainingMoves[0]) === 'W' &&
-                                heldBy(board, fromDelta[0] - remainingMoves[1]) === 'W'){
-                                throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }
-                        }
-                    //Case of rolling doubles
-                    }else if (remainingMoves.length === 4){
-
-                        for( var i = 0; i<=numberOfMovesTaken; i++){
-
-                            if(currentPlayer === 'W'){
-                                for(var j = fromDelta[i]; j<= toDelta[i]; j + (remainingMoves[0])){
-                                    if(heldBy(board, j) === 'B'){
-                                        throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                                    }
-                                }
-                            }else{
-                               for(var j = fromDelta[i]; j>= toDelta[i]; j - remainingMoves[0]){
-                                   if(heldBy(board, j) === 'W'){
-                                       throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                                   }
-                               }
-                            }
-
-                        }
-
-
-
-                    }
-
-                    //Iterate through all rolls and check that all moves can be made together
-                    var unusedRolls = remainingMoves;
-
-                    for(var i = 0; i < fromDelta.length; i++){
-                        if(fromDelta[i] !== '' && toDelta[i] !== 0 && toDelta[i] !== 27){
-                            //Check what rolls are left over after each move is made.
-                            unusedRolls = (getUnusedRolls(fromDelta[i], toDelta[i], unusedRolls));
-                        }
-                    }
-
-                    for(var i = 0; i< fromDelta.length; i++){
-                        if(toDelta[i] === 0 || toDelta[i] === 27){
-
-                            var totalNumberOfSpaces = Math.abs(fromDelta[i] - toDelta[i]);
-                            //Trying to exit but no moves left
-                            if(unusedRolls.length === 0){
-                                throw Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                            }
-
-                            //Else check that there is a large enough roll total to exit, and remove from unused, look
-                            //for smallest amount that will get off the board
-                            unusedRolls.sort(function(a, b){return b-a});
-                            var runningTotal = 0;
-
-                            for(var j = unusedRolls.length + 1; j >= 0 ;j){
-
-                                if(runningTotal + unusedRolls[j] >= totalNumberOfSpaces){
-                                    //Remove the elements that are used
-                                    unusedRolls.splice(j, unusedRolls.length - (j + 1));
-                                    runningTotal = 0;
-                                    break;
-                                }
-
-                            }
-
-                        }
-                    }
-                }*/
-
 
                 /**
                  * Returns true if a player has won the game.
@@ -822,9 +653,7 @@
                  * @param remainingMoves
                  */
                 function hasUsedFullRoll(fromDelta, toDelta, remainingMoves){
-
                     var totalDice = 0;
-                    console.log(toDelta);
 
                     //Sum of total dice rolls
                     for(var i = 0 ; i< remainingMoves.length; i++){
@@ -856,7 +685,8 @@
                 }
 
                 /**
-                 * Returns an array of dice rolls that haven't been used
+                 * Returns an array of dice rolls that haven't been used given a from delta array
+                 * todelta array and remainng moves array
                  * @param fromDelta
                  * @param toDelta
                  * @param remainingMoves
@@ -876,7 +706,7 @@
                     }
 
                     var sum = 0;
-                    //Check if any combination of dice rolls equals that number, if found then delete from remaing moves
+                    //Check if any combination of dice rolls equals that number, if found then delete from remaining moves
                     for(var i = 0 ; i < deltaArray.length; i++){
                         for( var j = remainingMoves.length -1 ; j>=0;j--){
                             sum = 0;
@@ -889,6 +719,37 @@
                         }
                     }
 
+                    return remainingMoves;
+                }
+
+                /**
+                 * Returns an array of dice rolls that haven't been used given a a single from and to point
+                 * and remainng moves array
+                 * @param fromDelta
+                 * @param toDelta
+                 * @param remainingMoves
+                 * @param board
+                 * @param player
+                 */
+                function getUnusedRollSinglePoint(from, to , remainingMoves){
+
+
+                    var delta;
+                    //Get the distance traveled
+                    delta = Math.abs(from - to);
+
+                    var sum = 0;
+                    //Check if any combination of dice rolls equals that number, if found then delete from remaining moves
+
+                    for( var j = remainingMoves.length -1 ; j>=0;j--){
+                        sum = 0;
+                        for (var k = j; k>=0;k--){
+                            sum = sum + remainingMoves[k];
+                            if(sum === delta){
+                                remainingMoves.splice(k,(j + 1));
+                            }
+                        }
+                    }
                     return remainingMoves;
                 }
 
@@ -1012,7 +873,6 @@
                         return true;
                     }
                 }
-
 
                 return {
                     isMoveOk: isMoveOk,
