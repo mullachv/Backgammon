@@ -68,8 +68,6 @@
                     var currentPlayer;
                     var opposingPlayer;
                     var remainingMoves = totalMoves(dice);
-                    console.log(toDelta);
-
 
                     if((dice[0] != dice [1] && (fromDelta.length > 2 || toDelta.length > 2)) ||
                         fromDelta.length>4 || toDelta.length >4){
@@ -220,7 +218,7 @@
                             unusedRolls = (getUnusedRollSinglePoint(fromDelta[i], toDelta[i], unusedRolls));
                         }
                     }
-                    console.log(toDelta);
+
                     for(var i = 0; i< fromDelta.length; i++){
                         if(toDelta[i] === 0 || toDelta[i] === 27){
 
@@ -282,13 +280,10 @@
                     remainingMoves = totalMoves(remainingMoves);
                     var currentPlayer;
                     var opposingPlayer;
-                    console.log(toDelta);
-
 
                     if (board === null || board === undefined || board === '' || board === [[]]) {
                         board = getInitialBoard();
                     }
-                    console.log(board);
 
                     if (turnIndexBeforeMove === 0) {
                         currentPlayer = 'W';
@@ -300,9 +295,7 @@
                         throw new Error(ILLEGAL_CODE.NO_PLAYER);
                     }
                     //Check that the to point is not the blots taken spot
-                    console.log('tolength' + toDelta.length);
                     for (var i = 0; i < toDelta.length; i++) {
-                        console.log('todeltaValue' + toDelta[i]);
                         if (toDelta[i] === 1 || toDelta[i] === 26) {
                             throw new Error(ILLEGAL_CODE.ILLEGAL_DELTA);
                         }
