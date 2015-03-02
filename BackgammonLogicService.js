@@ -868,6 +868,111 @@
                     }
                 }
 
+                /**
+                 * Returns an array of all possible moves given a board, the rollArray(upt to 4 items, is the actual
+                 * moves that can be made), and a player
+                 * @param board
+                 * @param diceArray
+                 * @param player
+                 */
+                function getPossibleMoves(board, rollArray, player){
+                    var currentRolls = [];
+                    var currentBoard;
+                    angular.copy(board,currentBoard);
+                    angular.copy(rollArray,currentRolls);
+
+
+                    //if no legal moves left then return an empty array
+                    if(!hasLegalMove(board, rollArray, player) || rollArray.length === 0){
+                        return false;
+                    }
+                    var legalMoves = [{from:[],to:[]}];
+
+                    for(var i = 0; i < currentRolls.length;i++){
+                        //Loop through the board and find all legal moves
+                        for(var j = 1; j < 26; j++){
+                            var toDelta = getLegalMoves(board,rollArray[i],j);
+
+                            if(toDelta !== false){
+                                var newBoard = makeMove(board,j,toDelta,player);
+
+                                //recursivly get all combinations based on new board
+                                var allOtherPossible = getPossibleMoves(newBoard,
+                                    currentRolls.slice(i,currentRolls.length),player);
+                                //Loop through all other possible moves and append the current from to
+                                for(var k = 0; k < allOtherPossible.length; k++){
+                                    allOtherPossible[k].from.push(j);
+                                    allOtherPossible[k].to.push(toDelta);
+                                    legalMoves.push(allOtherPossible[k]);
+                                }
+                            }
+                        }
+                    }
+                    return legalMoves;
+                }
+                    /**
+                     * Returns a legal to position given a from positon and a board. Checks for legitamacy (blocking,
+                     * exiting, taken picies), returns false if no legal moves.
+                     * @param board
+                     * @param player
+                     * @param singleRoll
+                     * @param fromPosition
+                     */
+                    function getLegalMoves(board, player, singleRoll, fromPosition) {
+
+
+                        if (!hasLegalMove(board, singleRoll, player)) {
+                            return false;
+                        }
+
+                        //If a blot is taken and its not moving back on the board then return false
+                        var takenIndex = takenIndex(player);
+                        for (var i = 0; i < 15; i++) {
+                            if (board[takenIndex][i] === player && fromPosition !== takenIndex) {
+                                return false;
+                            }
+                        }
+
+                        //Check that there is actually a piece in that spot
+                        var piceFound = false;
+                        for(var i = 0; i < 15 ; i++){
+                            if(board[fromPosition][i] === player){
+                                piceFound = true;
+                            }
+                        }
+                        //If not found at that position then return false
+                        if(piceFound === false){
+                            return piceFound;
+                        }
+
+
+                        var legalToMove = false;
+
+                        if (player === 'W') {
+                            if (heldBy(board, singleRoll + fromPosition) !== opposingPlayer(player)
+                                && singleRoll + fromPosition <= 25) {
+                                legalToMove = singleRoll + fromPosition;
+                            } else if (singleRoll + fromPosition > 25 && canExit(board, player)) {
+                                legalToMove = 27;
+                            }
+                        }
+
+
+                        if (player === 'B') {
+                            if (heldBy(board, fromPosition - singleRoll) !== opposingPlayer(player)
+                                && fromPosition - singleRoll >= 2) {
+
+                                legalToMove = fromPosition - singleRoll;
+
+                            } else if (fromPosition - singleRoll > 2 && canExit(board, player)) {
+                                legalToMove = 0;
+                            }
+                        }
+                    }
+
+
+
+
                 return {
                     isMoveOk: isMoveOk,
                     createMove: createMove,
