@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Backgammon</title>
+    <meta name="description" content="Backgammon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
+    <script src="BackgammonLogicService.js"></script>
+    <script src="game.js"></script>
+    <script src="http://yoav-zibin.github.io/emulator/resizeGameAreaService.js"></script>
+    <script src="http://yoav-zibin.github.io/emulator/gameService.js"></script>
+    <script src="http://yoav-zibin.github.io/emulator/messageService.js"></script>
+    <script src="http://yoav-zibin.github.io/emulator/stateService.js"></script>
+    <script src="http://yoav-zibin.github.io/emulator/examples/resizeMapArea.js"></script>
+    <script>
+        resizeMapArea({imageId: "board", mapId: "myMapId", originalWidth: 1024, originalHeight: 861});
+    </script>
+    <link rel="stylesheet" type="text/css" href="http://yoav-zibin.github.io/emulator/main.css">
+    <link rel="stylesheet" type="text/css" href="game.css">
+</head>
+
+
+
+
+
+
+<body ng-cloak ng-controller="Ctrl">
+<div id="gameArea">
+    <map id="myMapId">
+        <area onclick="alert('0');"    title="0"   shape="rect" coords="958,67,1024,370"/>
+        <area onclick="alert('1');"      title="1"   shape="rect" coords="482,239,549,371"/>
+        <area ng-click="alert('2');"    title="2"   shape="rect" coords="876,65,923,345"/>
+        <area onclick="alert('3');"    title="3"   shape="rect" coords="808,62,855,342"/>
+        <area onclick="alert('4');"    title="4"   shape="rect" coords="744,64,791,344"/>
+        <area onclick="alert('5');"    title="4"   shape="rect" coords="681,63,728,343"/>
+        <area onclick="alert('6');"    title="6"   shape="rect" coords="617,64,664,344"/>
+        <area onclick="alert('7');"    title="7"   shape="rect" coords="558,65,605,345"/>
+        <area onclick="alert('8');"    title="8"   shape="rect" coords="405,63,452,343"/>
+        <area onclick="alert('9');"    title="9"   shape="rect" coords="340,62,387,342"/>
+        <area onclick="alert('10');"   title="10"  shape="rect" coords="273,67,320,347"/>
+        <area onclick="alert('11');"   title="11"  shape="rect" coords="206,64,253,344"/>
+        <area onclick="alert('12');"   title="12"  shape="rect" coords="150,64,197,344"/>
+        <area onclick="alert('13');"   title="13"  shape="rect" coords="86,62,133,342"/>
+        <area onclick="alert('14');"   title="14"  shape="rect" coords="91,516,147,794"/>
+        <area onclick="alert('15');"   title="15"  shape="rect" coords="151,512,213,794"/>
+        <area onclick="alert('16');"   title="16"  shape="rect" coords="217,509,268,795"/>
+        <area onclick="alert('17');"   title="17"  shape="rect" coords="277,511,336,797"/>
+        <area onclick="alert('18');"   title="18"  shape="rect" coords="339,515,394,801"/>
+        <area onclick="alert('19');"   title="19"  shape="rect" coords="400,514,456,800"/>
+        <area onclick="alert('20');"   title="20"  shape="rect" coords="561,516,615,802"/>
+        <area onclick="alert('21');"   title="21"  shape="rect" coords="623,516,677,796"/>
+        <area onclick="alert('22');"   title="22"  shape="rect" coords="681,514,737,796"/>
+        <area onclick="alert('23');"   title="23"  shape="rect" coords="745,515,800,797"/>
+        <area onclick="alert('24');"   title="24"  shape="rect" coords="802,510,861,799"/>
+        <area onclick="alert('25');"   title="25"  shape="rect" coords="865,516,932,793"/>
+        <area onclick="alert('26');"   title="26"  shape="rect" coords="481,494,548,626"/>
+        <area onclick="alert('27');"   title="27"  shape="rect" coords="957,478,1024,793"/>
+        <area onclick ="alert('Make Move');" title="makeMove" shape="rect" coords="840,796,1024,861"/>
+    </map>
+    <img id="board"
+         src="http://cdn.shopify.com/s/files/1/0210/6626/products/PC162517_86aa633b-2484-45d3-8be3-b21a40c6cf05_1024x1024.jpeg?v=1389067252" width ="100%" height="100%" alt="1024X861" usemap="#myMapId" />
+
+    <img
+            ng-show="true" onclick="alert('you got me')"  src = 'white_man.png' style="position:absolute; top:6%; right:9%; width:7%; height:7%"/>
+
+    <img src = 'white_man.png' style="position:absolute; top:10%; right:9%; width:7%; height:7%"/>
+
+
+    <img src = 'white_man.png' style="position:absolute; top:14%; right:9%; width:7%; height:7%"/>
+
+    <img src = 'white_man.png' style="position:absolute; top:6%; right:15%; width:7%; height:7%"/>
+    <img onclick ="alert('HACHACHA');" src = 'black_man.png' style="position:absolute; top:18%; right:9%; width:7%; height:7%"/>
+
+
+</div>
+</body>
+</html>

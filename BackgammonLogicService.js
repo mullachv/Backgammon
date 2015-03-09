@@ -969,10 +969,6 @@
                             }
                         }
                     }
-
-
-
-
                 return {
                     isMoveOk: isMoveOk,
                     createMove: createMove,
