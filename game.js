@@ -8,6 +8,27 @@ angular.module('myApp')
         gameService, backGammonLogicService, resizeGameAreaService) {
         resizeGameAreaService.setWidthToHeight(1);
 
+        function updateUI(params){
+            console.log("updated UI");
+            $scope.board = params.board;
+            $scope.toDelta = params.toDelta;
+            $scope.fromDelta = params.fromDelta;
+            $scope.dice = params.dice;
+            $scope.turnIndex = params.turnIndex;
+
+            if($scope.board === undefined){
+                $scope.board = backGammonLogicService.getInitialBoard;
+            }
+        }
+
+//        var returnValue = [setTurn,
+//            {set: {key: 'board', value: currentBoard}},
+//            {set: {key: 'fromDelta', value: {fromDelta: fromDelta}}},
+//            {set: {key: 'toDelta', value: {toDelta: toDelta}}},
+//            {set: {key: 'dice', value: {dice: dice}}}];
+
+        updateUI({turnIndex: 0, board: [], fromDelta: [], toDelta:[], dice: []});
+
 
 
 
@@ -31,12 +52,15 @@ angular.module('myApp')
                 $scope.fromDelta[$scope.fromDelta.length - 1] = row;
                 return;
             }
-        }
+        };
 
         $scope.clickSpace = function(row){
+
+            console.log("SUCESS");
+
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length !== $scope.fromDelta.length){
-                $log.info("Must select a piece to move first");
+                console.log("Must select a piece to move first");
             }
 
             var currentPlayer;
@@ -56,16 +80,19 @@ angular.module('myApp')
                 $scope.toDelta.push(row);
                 return;
             }
-            //Else add to scope.toDelta
-        }
+        };
 
         $scope.completeMove = function(){
-
             //Pass the create move to the gameService.makeMove()
+            try{
+                var move = backGammonLogicService
+                    .createMove($scope.turnIndex, $scope.board, $scope.fromDelta, $scope.toDelta, $scope.dice);
 
-            //Log any exceptions
-
-        }
+                gameService.makeMove(move);
+            }catch(e){
+                $log.info("Illegal move");
+            }
+        };
 
         $scope.rollDice = function(){
             //return the dice array that will be displayed and used in the make move
@@ -73,8 +100,9 @@ angular.module('myApp')
             $scope.dice2 = Math.floor(Math.random() * 6);
 
             var roll = [$scope.dice1, $scope.dice2];
+            $scope.dice = roll;
             return roll;
-        }
+        };
 
         $scope.getImageSource = function(row,col){
             //From the board in scope
@@ -87,7 +115,7 @@ angular.module('myApp')
             }else{
                 return '';
             }
-        }
+        };
 
         gameService.setGame({
             gameDeveloperEmail: "ibtawfik@gmail.com",
