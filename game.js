@@ -10,14 +10,21 @@ angular.module('myApp')
 
         function updateUI(params){
             console.log("updated UI");
-            $scope.board = params.board;
-            $scope.toDelta = params.toDelta;
-            $scope.fromDelta = params.fromDelta;
-            $scope.dice = params.dice;
-            $scope.turnIndex = params.turnIndex;
 
-            if($scope.board === undefined){
-                $scope.board = backGammonLogicService.getInitialBoard;
+
+            if(params.stateBeforeMove === null){
+                $scope.board = backGammonLogicService.getInitialBoard();
+                $scope.toDelta = [];
+                $scope.fromDelta = [];
+                $scope.dice = [];
+                $scope.turnIndex = 0;
+            }else{
+                $scope.board = params.board;
+                $scope.toDelta = params.toDelta;
+                $scope.fromDelta = params.fromDelta;
+                $scope.dice = params.dice;
+                $scope.turnIndex = params.turnIndex;
+
             }
         }
 
