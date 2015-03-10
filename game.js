@@ -34,7 +34,7 @@ angular.module('myApp')
 //            {set: {key: 'toDelta', value: {toDelta: toDelta}}},
 //            {set: {key: 'dice', value: {dice: dice}}}];
 
-        updateUI({turnIndex: 0, board: [], fromDelta: [], toDelta:[], dice: []});
+        //updateUI({turnIndex: 0, board: [], fromDelta: [], toDelta:[], dice: []});
 
 
 
