@@ -11,21 +11,20 @@ angular.module('myApp')
         function updateUI(params){
             console.log("updated UI");
 
-
             if(params.stateBeforeMove === null){
                 $scope.board = backGammonLogicService.getInitialBoard();
-                $scope.toDelta = [];
                 $scope.fromDelta = [];
-                $scope.dice = [];
+                $scope.toDelta = [];
+                $scope.dice = $scope.rollDice();
                 $scope.turnIndex = 0;
             }else{
-                $scope.board = params.board;
-                $scope.toDelta = params.toDelta;
-                $scope.fromDelta = params.fromDelta;
-                $scope.dice = params.dice;
-                $scope.turnIndex = params.turnIndex;
-
+                $scope.board = params.stateBeforeMove.board;
+                $scope.fromDelta = params.stateBeforeMove.fromDelta;
+                $scope.toDelta = params.stateBeforeMove.toDelta;
+                $scope.dice = params.stateBeforeMove.dice;
+                $scope.turnIndex = params.turnIndexBeforeMove;
             }
+            $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.dice);
         }
 
 //        var returnValue = [setTurn,
@@ -41,6 +40,8 @@ angular.module('myApp')
 
 
         $scope.clickPiece = function(row){
+
+            console.log($scope.dice);
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
                 $log.info("White turn, clicked on black player");
@@ -61,9 +62,26 @@ angular.module('myApp')
             }
         };
 
+        function updateCurrentBoard(from, to){
+            var firstEmptySpot = emptySpot($scope.board, to);
+            console.log("first empty spot:" + firstEmptySpot);
+            var firstEmptyFrom = emptySpot($scope.board, from);
+            $scope.board[to][firstEmptySpot] = $scope.board[from][firstEmptyFrom - 1];
+            $scope.board[from][firstEmptyFrom - 1] = '';
+            return;
+        }
+
+        function emptySpot(board, row){
+            for(var i = 0; i < board[row].length; i++){
+                if(board[row][i] === ''){
+                    return i;
+                }
+            }
+        }
+
         $scope.clickSpace = function(row){
 
-            console.log("SUCESS");
+            //console.log("SUCESS");
 
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length !== $scope.fromDelta.length){
@@ -79,15 +97,42 @@ angular.module('myApp')
             }
 
             //If its not your turn then don't make a move add any additional toDelta
-            if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
+
+            if($scope.turnIndex === 0 && $scope.board[$scope.fromDelta[$scope.fromDelta.length - 1]][0] !== 'W'){
                 $log.info("Not white's turn");
-            }else if($scope.turnIndex === 1 && $scope.board[row][0] !== 'B'){
+            }else if($scope.turnIndex === 1 && $scope.board[$scope.fromDelta[$scope.fromDelta.length - 1]][0] !== 'B'){
                 $log.info("not blacks turn");
             }else{
                 $scope.toDelta.push(row);
+                updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length-1], row);
+
+                backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
+
+                //Check if its time to switch players and submit a move
+                console.log(backGammonLogicService.hasUsedFullRoll($scope.fromDelta, $scope.toDelta, $scope.fullDiceArray));
+                console.log($scope.fromDelta);
+                console.log($scope.toDelta);
+                console.log($scope.fullDiceArray);
+                console.log($scope.fullDiceArray.length)
+                if($scope.fullDiceArray.length === 0){
+                    try{
+                        console.log("in try/catch");
+                        var move = backGammonLogicService
+                            .createMove($scope.turnIndex, $scope.board, $scope.fromDelta, $scope.toDelta, $scope.dice);
+
+                        gameService.makeMove(move);
+                    }catch(e){
+                        $log.info("Illegal move");
+                    }
+                }
+
                 return;
             }
         };
+
+        //Gives the total number of moves that can be made, expands the dice to 4 items if doubles are rolled
+       ;
+
 
         $scope.completeMove = function(){
             //Pass the create move to the gameService.makeMove()
@@ -103,8 +148,8 @@ angular.module('myApp')
 
         $scope.rollDice = function(){
             //return the dice array that will be displayed and used in the make move
-            $scope.dice1 = Math.floor(Math.random() * 6);
-            $scope.dice2 = Math.floor(Math.random() * 6);
+            $scope.dice1 = Math.floor(Math.random() * 6) + 1;
+            $scope.dice2 = Math.floor(Math.random() * 6) + 1;
 
             var roll = [$scope.dice1, $scope.dice2];
             $scope.dice = roll;
@@ -123,6 +168,112 @@ angular.module('myApp')
                 return '';
             }
         };
+
+         $scope.getRowPosition = function (row){
+            if(row >= 2 && row <= 7){
+                var value = 9 + 6 * (row -2);
+                //console.log("current row:" + row +" Value on board:" + value);
+                return value + '%';
+            }
+
+            if(row >= 8 && row <= 13){
+                 var value = 18.5 + 6 * (row -2);
+                 //console.log("current row:" + row +" Value on board:" + value);
+                 return value + '%';
+            }
+
+            if(row >=14 && row <= 19){
+                var value = 85 - (row -14) * 6;
+                //console.log("current row:" + row +" Value on board:" + value);
+                return value + '%';
+            }
+
+             if(row >=20 && row <= 25){
+                 var value = 39 - (row -20) * 6;
+                 //console.log("current row:" + row +" Value on board:" + value);
+                 return value + '%';
+             }
+
+             return 0 + '%';
+        };
+
+        $scope.getColumnPositon= function (row, column){
+            if(row >= 2 && row <= 13){
+                var value = 6 + column * 4;
+                //console.log("current column:" + column +" Value on board:" + value);
+                return value + '%';
+            }
+
+            if(row >=14 && row <= 25){
+                var value = 87 - column * 4;
+                //console.log("current column:" + column +" Value on board:" + value);
+                return value + '%';
+            }
+
+            return 0 + '%';
+        };
+
+        $scope.getBoardPosition = function(row,column){
+           var top = getColumnPositon(column);
+           var right = getRowPosition(row);
+
+           if(top === undefined || right === undefined){
+               return "";
+           }
+           //console.log("position:absolute; top:" + top + "%; right:" + right +"%; width:7%; height:7%");
+           return "{position:absolute; top:" + top + "%; right:" + right +"%; width:7%; height:7%}";
+        };
+
+
+        $scope.shouldShowImage = function(row,column){
+            var cell = $scope.board[row][column];
+            var value = cell !=="";
+            //console.log("contents of row and column" + row + " " + column + " " + value);
+            return cell !== "";
+        };
+
+       function getDiceImage (diceValue){
+            switch(diceValue){
+                case 1:
+                    return 'd1.gif';
+                break;
+
+                case 2:
+                    return 'd2.gif';
+                break;
+
+                case 3:
+                    return 'd3.gif';
+                break;
+
+                case 4:
+                    return 'd4.gif';
+                break;
+
+                case 5:
+                    return 'd5.gif';
+                break;
+
+                case 6:
+                    return 'd6.gif';
+                break;
+
+                default:
+                    console.log("error dice out of range:" + $scope.dice1);
+                    return "";
+            }
+        }
+
+        $scope.getDice1 = function(){
+            return getDiceImage($scope.dice1);
+        };
+
+        $scope.getDice2 = function(){
+            return getDiceImage($scope.dice2);
+        };
+
+
+
 
         gameService.setGame({
             gameDeveloperEmail: "ibtawfik@gmail.com",
