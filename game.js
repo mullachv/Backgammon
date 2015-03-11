@@ -24,7 +24,10 @@ angular.module('myApp')
                 $scope.dice = params.stateBeforeMove.dice;
                 $scope.turnIndex = params.turnIndexBeforeMove;
             }
-            $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.dice);
+            var tempDice =[];
+            angular.copy($scope.dice,tempDice);
+            tempDice = backGammonLogicService.totalMoves(tempDice);
+            $scope.fullDiceArray = tempDice
         }
 
 //        var returnValue = [setTurn,
@@ -117,9 +120,12 @@ angular.module('myApp')
                 if($scope.fullDiceArray.length === 0){
                     try{
                         console.log("in try/catch");
+                        console.log($scope.dice);
                         var move = backGammonLogicService
                             .createMove($scope.turnIndex, $scope.board, $scope.fromDelta, $scope.toDelta, $scope.dice);
+                        //createMove(turnIndexBeforeMove ,board, fromDelta, toDelta, dice)
 
+                        console.log("create move worked");
                         gameService.makeMove(move);
                     }catch(e){
                         $log.info("Illegal move");
