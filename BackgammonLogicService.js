@@ -877,38 +877,54 @@
                  */
                 function getPossibleMoves(board, rollArray, player){
                     var currentRolls = [];
-                    var currentBoard;
+                    var remainingRolls = [];
+                    var currentBoard =[[]];
+                    var newBoard = [[]];
                     angular.copy(board,currentBoard);
                     angular.copy(rollArray,currentRolls);
 
 
                     //if no legal moves left then return an empty array
-                    if(!hasLegalMove(board, rollArray, player) || rollArray.length === 0){
+                    if(rollArray.length === 0 || !hasLegalMove(board, rollArray, player)){
                         return false;
                     }
-                    var legalMoves = [{from:[],to:[]}];
 
+                    var possibleMoves = [];
                     for(var i = 0; i < currentRolls.length;i++){
-                        //Loop through the board and find all legal moves
-                        for(var j = 1; j < 26; j++){
-                            var toDelta = getLegalMoves(board,rollArray[i],j);
 
-                            if(toDelta !== false){
-                                var newBoard = makeMove(board,j,toDelta,player);
+                        var currentRoll = currentRolls[i];
+                        for(var j=1;j<26;j++){
+                            var from = j;
 
-                                //recursivly get all combinations based on new board
-                                var allOtherPossible = getPossibleMoves(newBoard,
-                                    currentRolls.slice(i,currentRolls.length),player);
-                                //Loop through all other possible moves and append the current from to
-                                for(var k = 0; k < allOtherPossible.length; k++){
-                                    allOtherPossible[k].from.push(j);
-                                    allOtherPossible[k].to.push(toDelta);
-                                    legalMoves.push(allOtherPossible[k]);
+                            var legalMoves = getLegalMoves(currentBoard,player,currentRoll,from);
+                            var currentResult = {from:[from], to:[legalMoves]};
+
+                            if(legalMoves !== false){
+
+                                angular.copy(currentRolls,remainingRolls);
+                                remainingRolls.splice(i,1);
+                                angular.copy(currentBoard,newBoard);
+                                newBoard = makeMove(newBoard,from,legalMoves,player);
+                                var test = getPossibleMoves(newBoard,remainingRolls,player);
+
+                                if(test !== false && test !== undefined){
+                                    for(var counter = 0 ; counter < test.length;counter++ ){
+                                        var tempArray = [];
+                                        angular.copy(currentResult,tempArray);
+
+                                        var recursiveFrom = test[counter].from;
+                                        var recursiveTo = test[counter].to;
+                                        tempArray.from.push(recursiveFrom);
+                                        tempArray.to.push(recursiveTo);
+                                        possibleMoves.push(tempArray);
+                                    }
+                                }else{
+                                    possibleMoves.push(currentResult);
                                 }
                             }
                         }
                     }
-                    return legalMoves;
+                    return possibleMoves;
                 }
                     /**
                      * Returns a legal to position given a from positon and a board. Checks for legitamacy (blocking,
@@ -920,13 +936,21 @@
                      */
                     function getLegalMoves(board, player, singleRoll, fromPosition) {
 
-
-                        if (!hasLegalMove(board, singleRoll, player)) {
+                        var singleRollArray = [singleRoll];
+                        if (!hasLegalMove(board, singleRollArray, player)) {
                             return false;
                         }
 
                         //If a blot is taken and its not moving back on the board then return false
-                        var takenIndex = takenIndex(player);
+                        var takenIndex = 1;
+
+                        if(player === "W"){
+                            takenIndex = 1;
+                        }else{
+                            takenIndex = 26;
+                        }
+
+
                         for (var i = 0; i < 15; i++) {
                             if (board[takenIndex][i] === player && fromPosition !== takenIndex) {
                                 return false;
@@ -968,6 +992,7 @@
                                 legalToMove = 0;
                             }
                         }
+                        return legalToMove;
                     }
                 return {
                     isMoveOk: isMoveOk,
@@ -975,7 +1000,10 @@
                     getInitialBoard: getInitialBoard,
                     totalMoves: totalMoves,
                     hasUsedFullRoll:hasUsedFullRoll,
-                    getUnusedRolls:getUnusedRolls
+                    getUnusedRolls:getUnusedRolls,
+                    heldBy:heldBy,
+                    getPossibleMoves:getPossibleMoves,
+                    hasLegalMove:hasLegalMove
                 };
             });
 }());
