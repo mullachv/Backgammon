@@ -60,11 +60,15 @@
                 }
 
                 function isMoveOk(params){
-                    var board = params.board;
-                    var fromDelta = params.fromDelta;
-                    var toDelta = params.toDelta;
-                    var dice = params.dice;
-                    var turnIndexBeforeMove = params.turnIndex;
+                    console.log(params);
+                    if(params.stateAfterMove.board[0][0] === ''){
+                        console.log(params);
+                    }
+                    var board = params.stateBeforeMove.board;
+                    var fromDelta = params.stateAfterMove.fromDelta;
+                    var toDelta = params.stateAfterMove.toDelta;
+                    var dice = params.stateAfterMove.dice;
+                    var turnIndexBeforeMove = params.turnIndexBeforeMove;
                     var currentPlayer;
                     var opposingPlayer;
                     var remainingMoves = totalMoves(dice);
@@ -77,6 +81,9 @@
                     if (board === null || board === undefined || board === '' || board === [[]]){
                         board =getInitialBoard();
                     }
+
+                    console.log(board);
+
                     if(turnIndexBeforeMove === 0){
                         currentPlayer = 'W';
                         opposingPlayer = 'B';
@@ -118,6 +125,8 @@
                         angular.copy(remainingMoves,unusedRolls);
                         unusedRolls = getUnusedRolls(fromDelta, toDelta , unusedRolls);
 
+                        console.log("unused Rolls:");
+                        console.log(unusedRolls);
                         if(hasLegalMove(board,unusedRolls,currentPlayer)){
                             return false;
                         }
@@ -617,7 +626,7 @@
                  * @param pointIndex
                  */
                 function heldBy(board, pointIndex){
-
+                    console.log(pointIndex);
                     var countHeld = 0;
                     var color;
 
@@ -755,6 +764,22 @@
                  * @returns {boolean}
                  */
                 function hasLegalMove(board, remainingMoves, player){
+                    console.log("remianing moves ");
+                    console.log(remainingMoves);
+
+                    var hasRemainginRoll = false;
+                    //Check if there are any remaining moves first
+                    for(var i =0 ; i< remainingMoves.length; i++){
+                        if(remainingMoves[i] !== undefined){
+                            hasRemainginRoll = true;
+                            break;
+                        }
+                    }
+
+                    if(!hasRemainginRoll){
+                        return false;
+                    }
+
 
                     //if player waiting entry to board, can they enter?
                     if(player === 'W' && board[1][0] ==='W') {
@@ -802,6 +827,8 @@
                         for(var i = 1; i <= 25; i++){
                             for(var j = 0; j<remainingMoves.length;j++){
                                 if(board[i][0] === 'W'){
+                                    console.log("breaks here:");
+                                    console.log(remainingMoves[j]);
                                     if(heldBy(board, i + remainingMoves[j]) !== 'B' &&
                                         heldBy(board, i + remainingMoves[j]) !== undefined){
                                         return true;
@@ -909,14 +936,16 @@
 
                                 if(test !== false && test !== undefined){
                                     for(var counter = 0 ; counter < test.length;counter++ ){
-                                        var tempArray = [];
-                                        angular.copy(currentResult,tempArray);
+                                        for (var internalCounter = 0; internalCounter < test[counter].from.length; internalCounter++){
+                                            var tempArray = [];
+                                            angular.copy(currentResult,tempArray);
 
-                                        var recursiveFrom = test[counter].from;
-                                        var recursiveTo = test[counter].to;
-                                        tempArray.from.push(recursiveFrom);
-                                        tempArray.to.push(recursiveTo);
-                                        possibleMoves.push(tempArray);
+                                            var recursiveFrom = test[counter].from[internalCounter];
+                                            var recursiveTo = test[counter].to[internalCounter];
+                                            tempArray.from.push(recursiveFrom);
+                                            tempArray.to.push(recursiveTo);
+                                            possibleMoves.push(tempArray);
+                                        }
                                     }
                                 }else{
                                     possibleMoves.push(currentResult);
@@ -1003,7 +1032,8 @@
                     getUnusedRolls:getUnusedRolls,
                     heldBy:heldBy,
                     getPossibleMoves:getPossibleMoves,
-                    hasLegalMove:hasLegalMove
+                    hasLegalMove:hasLegalMove,
+                    makeMove:makeMove
                 };
             });
 }());
