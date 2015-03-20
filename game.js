@@ -9,8 +9,6 @@ angular.module('myApp')
         resizeGameAreaService.setWidthToHeight(1);
 
         function updateUI(params){
-            console.log("updated UI");
-            console.log(params);
 
             if(params.stateBeforeMove === null){
                 $scope.board = backGammonLogicService.getInitialBoard();
@@ -28,14 +26,16 @@ angular.module('myApp')
             var tempDice =[];
             angular.copy($scope.dice,tempDice);
             tempDice = backGammonLogicService.totalMoves(tempDice);
-            $scope.fullDiceArray = tempDice;
 
+            $scope.fullDiceArray = tempDice;
+            console.log("Update UI full dice array");
+            console.log($scope.fullDiceArray);
+            console.log("UpdateUI dice");
+            console.log($scope.dice);
             var tempBoard = [[]];
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
 
-            console.log("in update UI:");
-            console.log(params);
 
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer"){
@@ -55,21 +55,10 @@ angular.module('myApp')
 
         }
 
-//        var returnValue = [setTurn,
-//            {set: {key: 'board', value: currentBoard}},
-//            {set: {key: 'fromDelta', value: {fromDelta: fromDelta}}},
-//            {set: {key: 'toDelta', value: {toDelta: toDelta}}},
-//            {set: {key: 'dice', value: {dice: dice}}}];
-
-        //updateUI({turnIndex: 0, board: [], fromDelta: [], toDelta:[], dice: []});
-
-
-
 
 
         $scope.clickPiece = function(row){
 
-            console.log($scope.dice);
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
                 $log.info("White turn, clicked on black player");
@@ -92,7 +81,7 @@ angular.module('myApp')
 
         function updateCurrentBoard(from, to){
             var firstEmptySpot = emptySpot($scope.board, to);
-            console.log("first empty spot:" + firstEmptySpot);
+
             var firstEmptyFrom = emptySpot($scope.board, from);
             $scope.board[to][firstEmptySpot] = $scope.board[from][firstEmptyFrom - 1];
             $scope.board[from][firstEmptyFrom - 1] = '';
@@ -140,10 +129,12 @@ angular.module('myApp')
                     console.log("positoin held by opposing player");
                     return;
                 }
-
+                console.log("full dice array before:");
+                console.log($scope.fullDiceArray);
                 //Check if the player is trying to exit the board, if so can they
                 var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
-
+                console.log("full dice array after:");
+                console.log($scope.fullDiceArray);
                 var madeLegalMove = false;
 
                 //Check the first of the from to moves to see if it is possible form teh current board
@@ -181,11 +172,10 @@ angular.module('myApp')
                     backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
                     //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
 
-                    console.log("full dice array before:");
-                    console.log($scope.fullDiceArray);
+                    angular.copy($scope.dice, $scope.fullDiceArray);
+                    $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
                     backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
-                    console.log("full dice array after:");
-                    console.log($scope.fullDiceArray);
+
 
                     //Check if there are any remaining legal moves. If not then send the move
                     if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){

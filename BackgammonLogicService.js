@@ -60,10 +60,7 @@
                 }
 
                 function isMoveOk(params){
-                    console.log(params);
-                    if(params.stateAfterMove.board[0][0] === ''){
-                        console.log(params);
-                    }
+
                     var board = params.stateBeforeMove.board;
                     var fromDelta = params.stateAfterMove.fromDelta;
                     var toDelta = params.stateAfterMove.toDelta;
@@ -82,7 +79,6 @@
                         board =getInitialBoard();
                     }
 
-                    console.log(board);
 
                     if(turnIndexBeforeMove === 0){
                         currentPlayer = 'W';
@@ -125,8 +121,6 @@
                         angular.copy(remainingMoves,unusedRolls);
                         unusedRolls = getUnusedRolls(fromDelta, toDelta , unusedRolls);
 
-                        console.log("unused Rolls:");
-                        console.log(unusedRolls);
                         if(hasLegalMove(board,unusedRolls,currentPlayer)){
                             return false;
                         }
@@ -626,7 +620,7 @@
                  * @param pointIndex
                  */
                 function heldBy(board, pointIndex){
-                    console.log(pointIndex);
+
                     var countHeld = 0;
                     var color;
 
@@ -707,21 +701,50 @@
                             deltaArray.push(Math.abs(fromDelta[i] - toDelta[i]));
                         }
                     }
-
-                    var sum = 0;
-                    //Check if any combination of dice rolls equals that number, if found then delete from remaining moves
-                    for(var i = 0 ; i < deltaArray.length; i++){
-                        for( var j = remainingMoves.length -1 ; j>=0;j--){
-                            sum = 0;
-                            for (var k = j; k>=0;k--){
-                                sum = sum + remainingMoves[k];
-                                if(sum === deltaArray[i]){
-                                    remainingMoves.splice(k,(j + 1));
-                                }
-                            }
+                    var theSame=true;
+                    //Check if the elemnts in the remiaing moves array are the same
+                    for(var i = 0; i<remainingMoves.length - 1;i++){
+                        if(remainingMoves[i] !== remainingMoves[i+1]){
+                            theSame = false;
+                            break;
                         }
                     }
 
+                    //Used if not a double roll
+                    if(!theSame) {
+
+
+                        var sum = 0;
+                        //Check if any combination of dice rolls equals that number, if found then delete from remaining moves
+                        for (var i = 0; i < deltaArray.length; i++) {
+                            for (var j = remainingMoves.length - 1; j >= 0; j--) {
+                                sum = 0;
+                                for (var k = j; k >= 0; k--) {
+                                    sum = sum + remainingMoves[k];
+                                    if (sum === deltaArray[i]) {
+                                        remainingMoves.splice(k, (j + 1));
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        var totalDetla =0;
+                        for(var i = 0; i< deltaArray.length; i++){
+                            totalDetla+=deltaArray[i];
+                            var numberOfElementsLeft = remainingMoves.length;
+                            if(numberOfElementsLeft > 0 && totalDetla % remainingMoves[0] === 0){
+                                var numberOfElemetsToRemove = totalDetla/remainingMoves[0];
+                                if(numberOfElementsLeft >= numberOfElemetsToRemove){
+                                    console.log("number of elements to remove");
+                                    console.log(numberOfElemetsToRemove);
+                                    remainingMoves.splice(0,numberOfElemetsToRemove);
+                                    totalDetla = 0;
+                                }
+                            }
+
+                        }
+
+                    }
                     return remainingMoves;
                 }
 
@@ -764,8 +787,7 @@
                  * @returns {boolean}
                  */
                 function hasLegalMove(board, remainingMoves, player){
-                    console.log("remianing moves ");
-                    console.log(remainingMoves);
+
 
                     var hasRemainginRoll = false;
                     //Check if there are any remaining moves first
@@ -827,8 +849,6 @@
                         for(var i = 1; i <= 25; i++){
                             for(var j = 0; j<remainingMoves.length;j++){
                                 if(board[i][0] === 'W'){
-                                    console.log("breaks here:");
-                                    console.log(remainingMoves[j]);
                                     if(heldBy(board, i + remainingMoves[j]) !== 'B' &&
                                         heldBy(board, i + remainingMoves[j]) !== undefined){
                                         return true;
@@ -911,7 +931,7 @@
                     angular.copy(rollArray,currentRolls);
 
 
-                    //if no legal moves left then return an empty array
+                    //if no legal moves left then return false
                     if(rollArray.length === 0 || !hasLegalMove(board, rollArray, player)){
                         return false;
                     }
@@ -926,6 +946,10 @@
                             var legalMoves = getLegalMoves(currentBoard,player,currentRoll,from);
                             var currentResult = {from:[from], to:[legalMoves]};
 
+                            if(currentResult.from[0] === 2){
+                                var wait = "wait";
+                            }
+
                             if(legalMoves !== false){
 
                                 angular.copy(currentRolls,remainingRolls);
@@ -936,17 +960,18 @@
 
                                 if(test !== false && test !== undefined){
                                     for(var counter = 0 ; counter < test.length;counter++ ){
+                                        var tempArray = [];
+                                        angular.copy(currentResult,tempArray);
                                         for (var internalCounter = 0; internalCounter < test[counter].from.length; internalCounter++){
-                                            var tempArray = [];
-                                            angular.copy(currentResult,tempArray);
 
                                             var recursiveFrom = test[counter].from[internalCounter];
                                             var recursiveTo = test[counter].to[internalCounter];
                                             tempArray.from.push(recursiveFrom);
                                             tempArray.to.push(recursiveTo);
-                                            possibleMoves.push(tempArray);
+
                                         }
                                     }
+                                    possibleMoves.push(tempArray);
                                 }else{
                                     possibleMoves.push(currentResult);
                                 }
