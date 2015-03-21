@@ -59,6 +59,8 @@ angular.module('myApp')
 
         $scope.clickPiece = function(row){
 
+            console.log("piece clicked");
+
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
                 $log.info("White turn, clicked on black player");
@@ -98,7 +100,7 @@ angular.module('myApp')
 
         $scope.clickSpace = function(row){
 
-            //console.log("SUCESS");
+            console.log("SUCESS: " + row);
 
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length === $scope.fromDelta.length){
@@ -234,7 +236,12 @@ angular.module('myApp')
         };
 
          $scope.getRowPosition = function (row){
-            if(row >= 2 && row <= 7){
+            //White taken position
+             if(row === 1 || row === 26){
+                 return 46 + "%"
+             }
+
+             if(row >= 2 && row <= 7){
                 var value = 9 + 6 * (row -2);
                 //console.log("current row:" + row +" Value on board:" + value);
                 return value + '%';
@@ -262,13 +269,13 @@ angular.module('myApp')
         };
 
         $scope.getColumnPositon= function (row, column){
-            if(row >= 2 && row <= 13){
+            if(row >= 1 && row <= 13){
                 var value = 6 + column * 4;
                 //console.log("current column:" + column +" Value on board:" + value);
                 return value + '%';
             }
 
-            if(row >=14 && row <= 25){
+            if(row >=14 && row <= 26){
                 var value = 87 - column * 4;
                 //console.log("current column:" + column +" Value on board:" + value);
                 return value + '%';

@@ -304,20 +304,21 @@
                         }
                     }
 
-                    //Check that the player is actually on the from point
-                    var numberOfPiecesFound = 0;
-                    for (var j = 0; j < fromDelta.length; j++) {
-                        var row = fromDelta[j];
-                        for (var i = 0; i < 15; i++) {
-                            if (board[row][i] === currentPlayer) {
-                                numberOfPiecesFound++;
-                            }
-                        }
-                        if (numberOfPiecesFound === 0) {
-                            throw new Error(ILLEGAL_CODE.ILLEGAL_DELTA);
-                        }
-                        numberOfPiecesFound = 0;
-                    }
+                    //This check makes no sense beuase not changing th board each time, already taken care of elswhere
+//                    //Check that the player is actually on the from point
+//                    var numberOfPiecesFound = 0;
+//                    for (var j = 0; j < fromDelta.length; j++) {
+//                        var row = fromDelta[j];
+//                        for (var i = 0; i < 15; i++) {
+//                            if (board[row][i] === currentPlayer) {
+//                                numberOfPiecesFound++;
+//                            }
+//                        }
+//                        if (numberOfPiecesFound === 0) {
+//                            throw new Error(ILLEGAL_CODE.ILLEGAL_DELTA);
+//                        }
+//                        numberOfPiecesFound = 0;
+//                    }
 
                     //Checks if the player has utilized full dice roll, if not check if other legal moves availible
                     if (!hasUsedFullRoll(fromDelta, toDelta, remainingMoves)) {
@@ -343,23 +344,59 @@
                     }
 
                     //Check that all blots that were taken entered before other moves were made
-                    for (var i = 0; i < toDelta.length; i++) {
-                        if (playerCaptured(currentPlayer, board)) {
-                            //If player didn't move off the taken spot then check if any other moves were made
-                            for (var j = 0; j < toDelta.length; j++) {
-
-                                //If a move was made that didn't remove a blot back onto the board then decalre an
-                                //illegal move
-
-                                if (fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j])
-                                    > 0 && !(fromDelta[j] === 1 || fromDelta[j] === 26)) {
-                                    throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
-                                }
-
-                            }
-
+                    var numberCaptured = 0;
+                    var capturePoint = 0;
+                    if(currentPlayer === 'W'){
+                        capturePoint = 1;
+                    }else{
+                        capturePoint = 26;
+                    }
+                    //count the number captured
+                    for(var i =0; i<15; i++ ){
+                        if(board[capturePoint][i] === currentPlayer){
+                            numberCaptured++;
                         }
                     }
+
+                    //loop through the from array and match the number captured to the number of from's from the captured
+                    //position
+                    if(numberCaptured>0){
+                        var numberMoved = 0;
+                        var nonCapturedMoves = 0;
+                        for(var i=0;i<fromDelta.length;i++){
+                            if(fromDelta[i] === capturePoint){
+                                numberMoved++;
+                            }else{
+                                nonCapturedMoves++;
+                            }
+                        }
+                        //if the number captured is not the same as the number moved then make sure that no other move
+                        //occured, if it has then trhow an exception
+                        if(numberCaptured > numberMoved && nonCapturedMoves > 0){
+                            throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
+                        }
+
+                    }
+
+
+
+//                    for (var i = 0; i < toDelta.length; i++) {
+//                        if (playerCaptured(currentPlayer, board)) {
+//                            //If player didn't move off the taken spot then check if any other moves were made
+//                            for (var j = 0; j < toDelta.length; j++) {
+//
+//                                //If a move was made that didn't remove a blot back onto the board then decalre an
+//                                //illegal move
+//
+//                                if (fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j])
+//                                    > 0 && !(fromDelta[j] === 1 || fromDelta[j] === 26)) {
+//                                    throw new Error(ILLEGAL_CODE.ILLEGAL_MOVE);
+//                                }
+//
+//                            }
+//
+//                        }
+//                    }
 
                     //Ensure that player exiting the board is allowed to
                     for (var i = 0; i < toDelta.length; i++) {
