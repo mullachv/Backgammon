@@ -1005,10 +1005,10 @@
                                             var recursiveTo = test[counter].to[internalCounter];
                                             tempArray.from.push(recursiveFrom);
                                             tempArray.to.push(recursiveTo);
-
+                                            possibleMoves.push(tempArray);
                                         }
                                     }
-                                    possibleMoves.push(tempArray);
+
                                 }else{
                                     possibleMoves.push(currentResult);
                                 }
