@@ -853,7 +853,7 @@
 
                     if (player === 'B' && board[26][0] === 'B'){
                         for(var i = 0 ; i<remainingMoves.length; i++){
-                            if(heldBy(board, 26 - remainingMoves[i] !== 'W')){
+                            if(heldBy(board, 26 - remainingMoves[i]) !== 'W'){
                                 return true;
                             }
                         }
@@ -977,7 +977,7 @@
                     for(var i = 0; i < currentRolls.length;i++){
 
                         var currentRoll = currentRolls[i];
-                        for(var j=1;j<26;j++){
+                        for(var j=1;j<=26;j++){
                             var from = j;
 
                             var legalMoves = getLegalMoves(currentBoard,player,currentRoll,from);

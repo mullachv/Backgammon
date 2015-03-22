@@ -75,7 +75,7 @@ angular.module('myApp')
             if($scope.fromDelta.length === $scope.toDelta.length){
                 $scope.fromDelta.push(row);
                 return;
-            }else if($scope.fromDelta.length +1 === $scope.toDelta.length){
+            }else if($scope.fromDelta.length !== $scope.toDelta.length){
                 $scope.fromDelta[$scope.fromDelta.length - 1] = row;
                 return;
             }
@@ -165,8 +165,25 @@ angular.module('myApp')
 
                 //If not a legal move then return
                 if(!madeLegalMove){
-                    console.log("Get possible move malfunction");
-                    return;
+                    //no legal moves then switch turns
+                    if(possibleMoves === false){
+                        if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
+                            try{
+                                var move = backGammonLogicService
+                                    .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+
+                                console.log("move being made");
+                                gameService.makeMove(move);
+                            }catch(e){
+                                $log.info("Illegal Move");
+                                console.log(e);
+                            }
+                        }
+                    }else{
+                        console.log("Get possible move malfunction");
+                        return;
+                    }
+
                 }else{
                     //Push the move through and check if that is the last remaining move to be made before the
                     //full move is submitted
