@@ -4,20 +4,14 @@
 describe('Backgammon', function(){
     'use strict';
 
-
-    beforeEach(function(){
+    beforeEach(module('myApp','Ctrl'));
+    var scope;
+    beforeEach(inject(function (backGammonLogicService,Ctrl) {
+        scope = Ctrl.$scope;
         browser.get('http://localhost:9000/game.html');
-    });
+    }));
 
 
-
-    function getSpace(row){
-        return element(by.id('e2eSpace' + row ));
-    }
-
-    function getPiece(row, column){
-        return element(by.id('e2e_test_' + row + column));
-    }
 
     // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
     // or a number representing the playerIndex (-2 for viewer, 0 for white player, 1 for black player, etc)
@@ -29,6 +23,56 @@ describe('Backgammon', function(){
             angular.element(document).scope().$apply(); // to tell angular that things changes.
         }, JSON.stringify(matchState), JSON.stringify(playMode));
     }
+
+    function getSpace(row){
+        return element(by.id('e2e_test_space_' + row ));
+    }
+
+    function getPiece(row,column,player){
+        //grunt.log(element(by.id('e2e_test_piece_' + player + '_' + row + '_' + column)));
+        return element(by.id('e2e_test_piece_' + player + '_' + row + '_' + column));
+    }
+
+    function expectPiece(row, column, player){
+        if(player === 'W'){
+            expect(getPiece(row,column,'W').isDisplayed()).toEqual(true);
+        }else if(player === 'B'){
+            expect(getPiece(row,column,'B').isDisplayed()).toEqual(true);
+        }
+//        expect(getPiece(row,column,'B').isDisplayed()).toEqual(player === 'B' ? true : false);
+//        expect(getPiece(row,column,'W').isDisplayed()).toEqual(player === 'W' ? true : false);
+    }
+
+    function expectBoard(board){
+        for(var row = 0; row < 27; row++){
+            for(var column = 0; column < 15; column++){
+                expectPiece(row, column, board[row][column]);
+            }
+        }
+    }
+
+    function clickSpaceAndExpectPiece(row, column, player){
+        getSpace(row).click();
+        expectPiece(row,column,player);
+    }
+
+    function setDice(diceArray){
+        angular.copy(diceArray, scope.dice);
+
+    }
+
+    it('should have a title', function (){
+        expect(browser.getTitle()).toEqual('Backgammon');
+    });
+
+    it('should have the inital board', function () {
+       expectBoard(initalBoard);
+    });
+
+    it('after rolling a 1 and a 2 white can move 3 spaces', function(){
+        setDice([1,2]);
+    });
+
 
     var initalBoard =
         [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board

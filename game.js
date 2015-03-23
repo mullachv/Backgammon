@@ -360,6 +360,10 @@ angular.module('myApp')
             return getDiceImage($scope.dice2);
         };
 
+        $scope.pieceColor = function (row,column){
+            return $scope.board[row][column];
+        };
+
 
 
 
