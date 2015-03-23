@@ -62,8 +62,8 @@
                 function isMoveOk(params){
 
                     var board = params.stateBeforeMove.board;
-                    var fromDelta = params.stateAfterMove.fromDelta;
-                    var toDelta = params.stateAfterMove.toDelta;
+                    var fromDelta = params.stateAfterMove.fromDelta.fromDelta;
+                    var toDelta = params.stateAfterMove.toDelta.toDelta;
                     var dice = params.stateAfterMove.dice;
                     var turnIndexBeforeMove = params.turnIndexBeforeMove;
                     var currentPlayer;
@@ -72,6 +72,7 @@
 
                     if((dice[0] != dice [1] && (fromDelta.length > 2 || toDelta.length > 2)) ||
                         fromDelta.length>4 || toDelta.length >4){
+                        console.log(75);
                         return false;
                     }
 
@@ -87,30 +88,34 @@
                         currentPlayer = 'B';
                         opposingPlayer = 'W';
                     }else{
+                        console.log(91);
                         return false;
                     }
                     //Check that the to point is not the blots taken spot
                     for(var i = 0 ; i < toDelta.length; i++){
                         if(toDelta[i] === 1 || toDelta[i] === 26){
+                            console.log(97);
                             return false;
                         }
                     }
 
 
-                    //Check that the player is actually on the from point
-                    var numberOfPiecesFound = 0;
-                    for (var j = 0; j < fromDelta.length;j++){
-                        var row = fromDelta[j];
-                        for(var i = 0; i < 15 ; i++){
-                            if(board[row][i] === currentPlayer){
-                                numberOfPiecesFound++;
-                            }
-                        }
-                        if(numberOfPiecesFound === 0){
-                            return false;
-                        }
-                        numberOfPiecesFound = 0;
-                    }
+                    //Check that the player is actually on the from point, bad test, needs to be changed doesnt take into
+                    //account changing board state
+//                    var numberOfPiecesFound = 0;
+//                    for (var j = 0; j < fromDelta.length;j++){
+//                        var row = fromDelta[j];
+//                        for(var i = 0; i < 15 ; i++){
+//                            if(board[row][i] === currentPlayer){
+//                                numberOfPiecesFound++;
+//                            }
+//                        }
+//                        if(numberOfPiecesFound === 0){
+//                            console.log(113);
+//                            return false;
+//                        }
+//                        numberOfPiecesFound = 0;
+//                    }
 
                     //Checks if the player has utilized full dice roll, if not check if other legal moves availible
                     if(!hasUsedFullRoll(fromDelta,toDelta,remainingMoves)){
@@ -122,6 +127,7 @@
                         unusedRolls = getUnusedRolls(fromDelta, toDelta , unusedRolls);
 
                         if(hasLegalMove(board,unusedRolls,currentPlayer)){
+                            console.log(129);
                             return false;
                         }
                     }
@@ -137,6 +143,7 @@
 
                                 if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
                                     !(fromDelta[j] === 1 || fromDelta[j] === 26)){
+                                    console.log(145);
                                     return false;
                                 }
 
@@ -150,12 +157,14 @@
                     for(var i = 0; i < toDelta.length; i++){
                         if(currentPlayer === 'W' && toDelta[i] === 27){
                             if(!canExit(board,currentPlayer)){
+                                console.log(159);
                                 return false;
                             }
                         }
 
                         if(currentPlayer === 'B' && toDelta[i] === 0){
                             if(!canExit(board,currentPlayer)){
+                                console.log(166);
                                 return false;
                             }
                         }
@@ -164,6 +173,7 @@
 
                     for( var i = 0; i < toDelta.length; i++){
                         if(heldBy(board, toDelta[i]) === opposingPlayer){
+                            console.log(175);
                             return false;
                         }
                     }
@@ -181,6 +191,7 @@
                         if(currentPlayer === 'W'){
                             if(heldBy(board,fromDelta[0] + remainingMoves[0]) === 'B' &&
                                 heldBy(board, fromDelta[0] + remainingMoves[1]) === 'B'){
+                                console.log(193);
                                 return false;
                             }
                         }
@@ -188,6 +199,7 @@
                         if(currentPlayer ==='B'){
                             if(heldBy(board,fromDelta[0] - remainingMoves[0]) === 'W' &&
                                 heldBy(board, fromDelta[0] - remainingMoves[1]) === 'W'){
+                                console.log(201);
                                 return false;
                             }
                         }
@@ -198,12 +210,14 @@
                             if(currentPlayer === 'W'){
                                 for(var j = fromDelta[i]; j<= toDelta[i]; j = j + (remainingMoves[0])){
                                     if(heldBy(board, j) === 'B'){
+                                        console.log(212);
                                         return false;
                                     }
                                 }
                             }else{
                                 for(var j = fromDelta[i]; j>= toDelta[i];j = j - remainingMoves[0]){
                                     if(heldBy(board, j) === 'W'){
+                                        console.log(219);
                                         return false;
                                     }
                                 }
