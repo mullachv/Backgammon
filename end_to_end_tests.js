@@ -4,32 +4,30 @@
 describe('Backgammon', function(){
     'use strict';
 
-    beforeEach(module('myApp','Ctrl'));
-    var scope;
-    beforeEach(inject(function (backGammonLogicService,Ctrl) {
-        scope = Ctrl.$scope;
+    beforeEach(function () {
         browser.get('http://localhost:9000/game.html');
-    }));
+        //browser.waitForAngular();
+        browser.driver.manage().window().setSize(1280, 1024);
+    });
 
 
 
-    // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
-    // or a number representing the playerIndex (-2 for viewer, 0 for white player, 1 for black player, etc)
-    function setMatchState(matchState, playMode) {
-        browser.executeScript(function(matchStateInJson, playMode) {
-            var stateService = window.e2e_test_stateService;
-            stateService.setMatchState(angular.fromJson(matchStateInJson));
-            stateService.setPlayMode(angular.fromJson(playMode));
-            angular.element(document).scope().$apply(); // to tell angular that things changes.
-        }, JSON.stringify(matchState), JSON.stringify(playMode));
-    }
+//    // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
+//    // or a number representing the playerIndex (-2 for viewer, 0 for white player, 1 for black player, etc)
+//    function setMatchState(matchState, playMode) {
+//        browser.executeScript(function(matchStateInJson, playMode) {
+//            var stateService = window.e2e_test_stateService;
+//            stateService.setMatchState(angular.fromJson(matchStateInJson));
+//            stateService.setPlayMode(angular.fromJson(playMode));
+//            angular.element(document).scope().$apply(); // to tell angular that things changes.
+//        }, JSON.stringify(matchState), JSON.stringify(playMode));
+//    }
 
     function getSpace(row){
         return element(by.id('e2e_test_space_' + row ));
     }
 
     function getPiece(row,column,player){
-        //grunt.log(element(by.id('e2e_test_piece_' + player + '_' + row + '_' + column)));
         return element(by.id('e2e_test_piece_' + player + '_' + row + '_' + column));
     }
 
@@ -39,8 +37,6 @@ describe('Backgammon', function(){
         }else if(player === 'B'){
             expect(getPiece(row,column,'B').isDisplayed()).toEqual(true);
         }
-//        expect(getPiece(row,column,'B').isDisplayed()).toEqual(player === 'B' ? true : false);
-//        expect(getPiece(row,column,'W').isDisplayed()).toEqual(player === 'W' ? true : false);
     }
 
     function expectBoard(board){
@@ -51,37 +47,120 @@ describe('Backgammon', function(){
         }
     }
 
+    function setDice(dice){
+        browser.executeScript(function(dice){
+            var scope = window.e2e_test_scope;
+
+        angular.copy(dice, scope.dice);
+        scope.dice1 = dice[0];
+        scope.dice2 =dice[1];
+
+        if(dice[0] === dice[1]){
+            scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
+        }else{
+            angular.copy(dice,scope.fullDiceArray);
+        }
+        angular.element(document).scope().$apply();},JSON.stringify(dice));
+    }
+
+    function setBoard(board){
+        browser.executeScript( function(board) {
+            var scope = window.e2e_test_scope;
+
+            scope.board = board;
+            angular.element(document).scope().$apply();},JSON.stringify(board));
+    }
+
+    function setTurnIndex(turnIndex){
+        browser.executeScript(function(turnIndex) {
+            var scope = window.e2e_test_scope;
+
+            scope.turnIndex = turnIndex;
+            angular.element(document).scope().$apply();},JSON.stringify(turnIndex));
+    }
+
+    function setEmptyDeltas(){
+        browser.executeScript(function(){
+            var scope = window.e2e_test_scope;
+
+        scope.fromDelta = [];
+        scope.toDelta = [];
+            angular.element(document).scope().$apply();});
+    }
+
+    function initalize(turnIndex, board, dice){
+        browser.executeScript(function(turnIndex,board,dice){
+            var scope = window.e2e_test_scope;
+
+            angular.copy(dice, scope.dice);
+            scope.dice1 = dice[0];
+            scope.dice2 =dice[1];
+
+            if(dice[0] === dice[1]){
+                scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
+            }else{
+                angular.copy(dice,scope.fullDiceArray);
+            }
+            scope.board = board;
+            scope.turnIndex = turnIndex;
+            scope.fromDelta = [];
+            scope.toDelta = [];
+            angular.element(document).scope().$apply();
+
+
+        },JSON.stringify(turnIndex),JSON.stringify(board),JSON.stringify(dice));
+
+
+    }
+
     function clickSpaceAndExpectPiece(row, column, player){
         getSpace(row).click();
         expectPiece(row,column,player);
     }
 
-    function setDice(diceArray){
-        angular.copy(diceArray, scope.dice);
-
+    function clickPiece(row,column,player){
+        getPiece(row,column,player).click();
     }
 
-    it('should have a title', function (){
-        expect(browser.getTitle()).toEqual('Backgammon');
-    });
 
-    it('should have the inital board', function () {
-       expectBoard(initalBoard);
-    });
+//    it('should have a title', function (){
+//        expect(browser.getTitle()).toEqual('Backgammon');
+//    });
+//
+//    it('should have the inital board', function () {
+//       expectBoard(initalBoard);
+//
+//    });
 
     it('after rolling a 1 and a 2 white can move 3 spaces', function(){
-        setDice([1,2]);
+       initalize(0,initalBoard,[1,2]);
+
+//        setDice([1,2]);
+//        browser.pause();
+//       setEmptyDeltas();
+//        browser.pause();
+//       setTurnIndex(0);
+//        browser.pause();
+        browser.pause();
+       clickPiece(2,0,'W');
+
+       getSpace(5).click();
+
+       expectPiece(5,0,'W');
+
+
+
     });
 
 
     var initalBoard =
         [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+        ['W', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
-        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+        ['W', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
         ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
         ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
@@ -134,29 +213,6 @@ describe('Backgammon', function(){
             ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
             ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27
 
-    var dice = [1,2];
 
-    var matchState2 = {
-        turnIndexBeforeMove: 0,
-        turnIndex: 0,
-        endMatchScores: null,
-        lastMove: [{setTurn: {turnIndex: 1}},
-            {set: {key: 'board', value: initalBoard}},
-            {set: {key: 'fromDelta', value:2}},
-            {set:{key: 'toDelta', value:5}}],
-        lastState: {board: null, dice: null, fromDelta:null, toDelta:null},
-        currentState: {board: board2, dice: dice, fromDelta:[2], toDelta:[5]},
-        lastVisibleTo: {},
-        currentVisibleTo: {}
-    };
-
-
-
-
-
-//{set: {key: 'board', value: currentBoard}},
-//{set: {key: 'fromDelta', value: {fromDelta: fromDelta}}},
-//{set: {key: 'toDelta', value: {toDelta: toDelta}}},
-//{set: {key: 'dice', value: {dice: dice}}}];
 
 });

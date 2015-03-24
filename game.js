@@ -3,10 +3,14 @@
  */
 'use strict';
 angular.module('myApp')
-    .controller('Ctrl', function (
-        $window, $scope, $log, $timeout,
-        gameService, backGammonLogicService, resizeGameAreaService) {
+    .controller('Ctrl', ['$scope', '$log', '$timeout',
+        'gameService', 'stateService', 'backGammonLogicService',
+        'resizeGameAreaService',
+    function (
+        $scope, $log, $timeout,
+        gameService,stateService, backGammonLogicService, resizeGameAreaService) {
         resizeGameAreaService.setWidthToHeight(1);
+
 
         function updateUI(params){
 
@@ -28,10 +32,6 @@ angular.module('myApp')
             tempDice = backGammonLogicService.totalMoves(tempDice);
 
             $scope.fullDiceArray = tempDice;
-            console.log("Update UI full dice array");
-            console.log($scope.fullDiceArray);
-            console.log("UpdateUI dice");
-            console.log($scope.dice);
             var tempBoard = [[]];
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
@@ -54,6 +54,7 @@ angular.module('myApp')
 
 
         }
+        window.e2e_test_scope = $scope; //load the scope into e2e test
 
 
 
@@ -374,4 +375,4 @@ angular.module('myApp')
             isMoveOk: backGammonLogicService.isMoveOk,
             updateUI: updateUI
         });
-    });
+    }]);
