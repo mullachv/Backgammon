@@ -34,69 +34,69 @@ describe('Backgammon', function(){
         }
     }
 
-    function setDice(dice){
-        browser.executeScript(function(dice){
-            var scope = window.e2e_test_scope;
-
-        angular.copy(dice, scope.dice);
-        scope.dice1 = dice[0];
-        scope.dice2 =dice[1];
-
-        if(dice[0] === dice[1]){
-            scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
-        }else{
-            angular.copy(dice,scope.fullDiceArray);
-        }
-        angular.element(document).scope().$apply();},JSON.stringify(dice));
-    }
-
-    function setBoard(board){
-        browser.executeScript( function(board) {
-            var scope = window.e2e_test_scope;
-
-            scope.board = board;
-            angular.element(document).scope().$apply();},JSON.stringify(board));
-    }
-
-    function setTurnIndex(turnIndex){
-        browser.executeScript(function(turnIndex) {
-            var scope = window.e2e_test_scope;
-
-            scope.turnIndex = turnIndex;
-            angular.element(document).scope().$apply();},JSON.stringify(turnIndex));
-    }
-
-    function setEmptyDeltas(){
-        browser.executeScript(function(){
-            var scope = window.e2e_test_scope;
-
-        scope.fromDelta = [];
-        scope.toDelta = [];
-            angular.element(document).scope().$apply();});
-    }
-
-    function initalize(turnIndex, board, dice){
-        browser.executeScript(function(turnIndex,board,dice){
-            var scope = window.e2e_test_scope;
-
-            angular.copy(dice, scope.dice);
-            scope.dice1 = dice[0];
-            scope.dice2 =dice[1];
-
-            if(dice[0] === dice[1]){
-                scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
-            }else{
-                angular.copy(dice,scope.fullDiceArray);
-            }
-            scope.board = board;
-            scope.turnIndex = turnIndex;
-            scope.fromDelta = [];
-            scope.toDelta = [];
-            angular.element(document).scope().$apply();
-
-
-        },JSON.stringify(turnIndex),JSON.stringify(board),JSON.stringify(dice));
-    }
+//    function setDice(dice){
+//        browser.executeScript(function(dice){
+//            var scope = window.e2e_test_scope;
+//
+//        angular.copy(dice, scope.dice);
+//        scope.dice1 = dice[0];
+//        scope.dice2 =dice[1];
+//
+//        if(dice[0] === dice[1]){
+//            scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
+//        }else{
+//            angular.copy(dice,scope.fullDiceArray);
+//        }
+//        angular.element(document).scope().$apply();},JSON.stringify(dice));
+//    }
+//
+//    function setBoard(board){
+//        browser.executeScript( function(board) {
+//            var scope = window.e2e_test_scope;
+//
+//            scope.board = board;
+//            angular.element(document).scope().$apply();},JSON.stringify(board));
+//    }
+//
+//    function setTurnIndex(turnIndex){
+//        browser.executeScript(function(turnIndex) {
+//            var scope = window.e2e_test_scope;
+//
+//            scope.turnIndex = turnIndex;
+//            angular.element(document).scope().$apply();},JSON.stringify(turnIndex));
+//    }
+//
+//    function setEmptyDeltas(){
+//        browser.executeScript(function(){
+//            var scope = window.e2e_test_scope;
+//
+//        scope.fromDelta = [];
+//        scope.toDelta = [];
+//            angular.element(document).scope().$apply();});
+//    }
+//
+//    function initalize(turnIndex, board, dice){
+//        browser.executeScript(function(turnIndex,board,dice){
+//            var scope = window.e2e_test_scope;
+//
+//            angular.copy(dice, scope.dice);
+//            scope.dice1 = dice[0];
+//            scope.dice2 =dice[1];
+//
+//            if(dice[0] === dice[1]){
+//                scope.fullDiceArray = [dice[0],dice[0],dice[0],dice[0]];
+//            }else{
+//                angular.copy(dice,scope.fullDiceArray);
+//            }
+//            scope.board = board;
+//            scope.turnIndex = turnIndex;
+//            scope.fromDelta = [];
+//            scope.toDelta = [];
+//            angular.element(document).scope().$apply();
+//
+//
+//        },JSON.stringify(turnIndex),JSON.stringify(board),JSON.stringify(dice));
+//    }
 
 
     // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
