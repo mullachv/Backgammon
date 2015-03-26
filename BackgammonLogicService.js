@@ -60,11 +60,17 @@
                 }
 
                 function isMoveOk(params){
+                    //return true;
+                    //First move of the game.
+                    if(params.stateBeforeMove.board === undefined){
+                        return true;
+                    }
+
 
                     var board = params.stateBeforeMove.board;
                     var fromDelta = params.stateAfterMove.fromDelta.fromDelta;
                     var toDelta = params.stateAfterMove.toDelta.toDelta;
-                    var dice = params.stateAfterMove.dice;
+                    var dice = [params.stateBeforeMove.dice1 ,params.stateBeforeMove.dice2] ;
                     var turnIndexBeforeMove = params.turnIndexBeforeMove;
                     var currentPlayer;
                     var opposingPlayer;
@@ -536,7 +542,8 @@
                         {set: {key: 'board', value: currentBoard}},
                         {set: {key: 'fromDelta', value: {fromDelta: fromDelta}}},
                         {set: {key: 'toDelta', value: {toDelta: toDelta}}},
-                        {set: {key: 'dice', value: {dice: dice}}}];
+                        {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                        {setRandomInteger: {key: 'dice2', from:1, to:7}}];
 
                     return returnValue;
 

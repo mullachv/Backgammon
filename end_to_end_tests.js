@@ -10,19 +10,6 @@ describe('Backgammon', function(){
         browser.driver.manage().window().setSize(1280, 1024);
     });
 
-
-
-//    // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
-//    // or a number representing the playerIndex (-2 for viewer, 0 for white player, 1 for black player, etc)
-//    function setMatchState(matchState, playMode) {
-//        browser.executeScript(function(matchStateInJson, playMode) {
-//            var stateService = window.e2e_test_stateService;
-//            stateService.setMatchState(angular.fromJson(matchStateInJson));
-//            stateService.setPlayMode(angular.fromJson(playMode));
-//            angular.element(document).scope().$apply(); // to tell angular that things changes.
-//        }, JSON.stringify(matchState), JSON.stringify(playMode));
-//    }
-
     function getSpace(row){
         return element(by.id('e2e_test_space_' + row ));
     }
@@ -109,8 +96,18 @@ describe('Backgammon', function(){
 
 
         },JSON.stringify(turnIndex),JSON.stringify(board),JSON.stringify(dice));
+    }
 
 
+    // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
+    // or a number representing the playerIndex (-2 for viewer, 0 for white player, 1 for black player, etc)
+    function setMatchState(matchState, playMode) {
+        browser.executeScript(function(matchStateInJson, playMode) {
+            var stateService = window.e2e_test_stateService;
+            stateService.setMatchState(angular.fromJson(matchStateInJson));
+            stateService.setPlayMode(angular.fromJson(playMode));
+            angular.element(document).scope().$apply(); // to tell angular that things changes.
+        }, JSON.stringify(matchState), JSON.stringify(playMode));
     }
 
     function clickSpaceAndExpectPiece(row, column, player){
@@ -133,24 +130,21 @@ describe('Backgammon', function(){
 //    });
 
     it('after rolling a 1 and a 2 white can move 3 spaces', function(){
-       initalize(0,initalBoard,[1,2]);
 
-//        setDice([1,2]);
+       setMatchState(matchState1, 'passAndPlay');
+//       initalize(0,initalBoard,[1,2]);
+//        clickPiece(2,0,'W');
+//        initalize(0,initalBoard,[1,2]);
+//
 //        browser.pause();
-//       setEmptyDeltas();
-//        browser.pause();
-//       setTurnIndex(0);
-//        browser.pause();
-        browser.pause();
        clickPiece(2,0,'W');
 
        getSpace(5).click();
 
        expectPiece(5,0,'W');
 
-
-
     });
+
 
 
     var initalBoard =
@@ -213,6 +207,15 @@ describe('Backgammon', function(){
             ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
             ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27
 
-
+    var matchState1 = {
+        turnIndexBeforeMove: 0,
+        turnIndex: 0,
+        endMatchScores: null,
+        lastMove: [{setTurn:{turnIndex:0}}, {set:{key:initalBoard}}, {set:{fromDelta:[]}}, {set:{toDelta:0}}],
+        lastState: {},
+        currentState: {board: initalBoard, dice1: 1,dice2:2,fromDelta:[],toDelta:[]},
+        lastVisibleTo: {},
+        currentVisibleTo: {}
+    };
 
 });

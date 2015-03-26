@@ -12,27 +12,74 @@ angular.module('myApp')
         resizeGameAreaService.setWidthToHeight(1);
 
 
+
+
         function updateUI(params){
 
-            if(params.stateBeforeMove === null){
-                $scope.board = backGammonLogicService.getInitialBoard();
+            var state = stateService.getMatchState();
+            console.log(state);
+                if(params.stateAfterMove.board === undefined){
+                    var temp = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
+                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27;
+                    $scope.board = temp;
+                }else{
+                    $scope.board = params.stateAfterMove.board;
+                }
+
                 $scope.fromDelta = [];
                 $scope.toDelta = [];
-                $scope.dice = $scope.rollDice();
-                $scope.turnIndex = 0;
-            }else{
-                $scope.board = params.stateAfterMove.board;
-                $scope.fromDelta = [];
-                $scope.toDelta = [];
-                $scope.dice = $scope.rollDice();
+                $scope.dice = [params.stateAfterMove.dice1, params.stateAfterMove.dice2];
+            $scope.dice1 = params.stateAfterMove.dice1;
+            $scope.dice2 = params.stateAfterMove.dice2;
                 $scope.turnIndex = params.turnIndexAfterMove;
-            }
+
+
+//
+//            if(params.stateBeforeMove === null){
+//                $scope.board = backGammonLogicService.getInitialBoard();
+//                $scope.fromDelta = [];
+//                $scope.toDelta = [];
+//                $scope.dice = [];
+//                $scope.turnIndex = 0;
+//            }else{
+//                $scope.board = params.stateAfterMove.board;
+//                $scope.fromDelta = [];
+//                $scope.toDelta = [];
+//                $scope.dice = $scope.rollDice();
+//                $scope.turnIndex = params.turnIndexAfterMove;
+//            }
             var tempDice =[];
             angular.copy($scope.dice,tempDice);
             tempDice = backGammonLogicService.totalMoves(tempDice);
 
             $scope.fullDiceArray = tempDice;
-            var tempBoard = [[]];
+            var tempBoard =[[]];
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
 
@@ -54,7 +101,10 @@ angular.module('myApp')
 
 
         }
-        window.e2e_test_scope = $scope; //load the scope into e2e test
+
+        window.e2e_test_stateService = stateService;
+
+        //window.e2e_test_scope = $scope; //load the scope into e2e test
 
 
 
@@ -375,4 +425,47 @@ angular.module('myApp')
             isMoveOk: backGammonLogicService.isMoveOk,
             updateUI: updateUI
         });
+
+
+        gameService.makeMove([{set: {key: 'board', value: [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
+            ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+            ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+            ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+            ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+            ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+            ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+            ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+            ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']]}},
+            {set: {key: 'fromDelta', value: {fromDelta: []}}},
+            {set: {key: 'toDelta', value: {toDelta: []}}},
+            {setTurn: {turnIndex: 0}},
+            {setRandomInteger: {key: 'dice1', from:1, to:7}},
+            {setRandomInteger: {key: 'dice2', from:1, to:7}}]);
+
+//        [setTurn,
+//            {set: {key: 'board', value: currentBoard}},
+//            {set: {key: 'fromDelta', value: {fromDelta: fromDelta}}},
+//            {set: {key: 'toDelta', value: {toDelta: toDelta}}},
+//            {setRandomInteger: {key: 'dice1', from:1, to:7}},
+//            {setRandomInteger: {key: 'dice2', from:1, to:7}}]
+
     }]);
