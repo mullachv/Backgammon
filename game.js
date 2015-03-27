@@ -365,6 +365,10 @@ angular.module('myApp')
 
 
         $scope.shouldShowImage = function(row,column){
+
+            if(row === 0 || row === 27){
+                return false;
+            }
             var cell = $scope.board[row][column];
             var value = cell !=="";
             //console.log("contents of row and column" + row + " " + column + " " + value);
