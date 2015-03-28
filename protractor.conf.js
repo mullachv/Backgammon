@@ -1,7 +1,7 @@
 exports.config = {
   specs: [
-      //'end_to_end_tests.js'
-      'end_to_end_tests_Jingxin.js'
+      'end_to_end_tests.js'
+      //'end_to_end_tests_Jingxin.js'
       ],
   allScriptsTimeout: 11000,
   directConnect: true, // only works with Chrome and Firefox
