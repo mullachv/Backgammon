@@ -3,15 +3,36 @@
  */
 'use strict';
 angular.module('myApp')
-    .controller('Ctrl', ['$scope', '$log', '$timeout',
+    .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
         'gameService', 'stateService', 'backGammonLogicService',
         'resizeGameAreaService',
     function (
-        $scope, $log, $timeout,
+        $scope,$animate,$element, $log, $timeout,
         gameService,stateService, backGammonLogicService, resizeGameAreaService) {
         resizeGameAreaService.setWidthToHeight(1);
 
 
+
+        function addAnimationClass(callback){
+            var from = $scope.fromDelta[$scope.fromDelta.length - 1];
+            var to = $scope.toDelta[$scope.toDelta.length - 1];
+            var player = $scope.board[from][0];
+            var column = -1;
+
+            for(var i  = 14; i >= 0; i--) {
+                if ($scope.board[from][i] === player) {
+                    column = i;
+                    break;
+                }
+            }
+            var element1 = document.getElementById('e2e_test_piece_' + player + '_'+from+'_'+column);
+            $animate.addClass(element1, 'test',callback);
+
+
+
+
+
+        }
 
 
         function updateUI(params){
@@ -104,8 +125,88 @@ angular.module('myApp')
 
         window.e2e_test_stateService = stateService;
 
-        //window.e2e_test_scope = $scope; //load the scope into e2e test
+        window.handleDragEvent = function(event, type, clientX, clientY){
+            console.log(event.target.id);
+            console.log(type +" "+ clientX+ " " + clientY);
+            var id = event.target.id;
+            if(type === 'touchstart' && isPiece(id)){
+                console.log("picec clicked: "+ getRow(id));
+                $scope.clickPiece(getRow(id));
+            }else if(type === 'touchend' && isBgSpace(id)){
+                console.log("space clicked: " + getRow(id));
+                $scope.clickSpace(getRow(id));
+            }
+        };
 
+
+//        window.handleEvent = function (event, type, x, y) {
+//            var row = -1;
+//
+//            if(isPiece(event.target.id)){
+//                row = getRow(event.target.id);
+//                $scope.clickPiece(row);
+//
+//                console.log(event.changedTouches[0]);
+//
+//            }else if(isBgSpace(event.target.id)){
+//                console.log("Space found");
+//                row = getRow(event.target.id);
+//                $scope.clickSpace(row);
+//
+//            }
+//              console.log("nothing found");
+//
+////
+////
+////            alert(event.target.id);
+//
+////            startOrEnd = _startOrEnd;
+////            console.log("handleInvisibleDivEvent:", event, startOrEnd);
+////            event.preventDefault();
+////
+////            var touch = event.changedTouches ? event.changedTouches[0] : event;
+////            var simulatedEvent = document.createEvent("MouseEvent");
+////            simulatedEvent.initMouseEvent("click", true, true, window, 1,
+////                touch.screenX, touch.screenY,
+////                touch.clientX, touch.clientY, false,
+////                false, false, false, 0, null);
+////
+////            invisibleDivAboveAreaMap.style.display = "none"; // Making it invisible to we find the correct elementFromPoint
+////            document.elementFromPoint(touch.clientX,touch.clientY).dispatchEvent(simulatedEvent);
+////            invisibleDivAboveAreaMap.style.display = "block";
+//        };
+
+        function isPiece(id){
+            if( id.indexOf("piece") > -1){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        function isBgSpace(id){
+            if(id.indexOf("space") > -1){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        function getRow(id){
+            var splitString = id.split("_");
+            console.log(splitString);
+
+            if(isPiece(id)){
+                console.log("Piece: " + splitString[4]);
+                return parseInt(splitString[4]);
+            }else if(isBgSpace(id)){
+                console.log("Space: " + splitString[3]);
+                return parseInt(splitString[3]);
+            }else{
+                return false;
+            }
+
+        }
 
 
         $scope.clickPiece = function(row){
@@ -115,9 +216,11 @@ angular.module('myApp')
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
                 $log.info("White turn, clicked on black player");
+                $scope.$apply();
                 return;
             }else if($scope.turnIndex === 1 && $scope.board[row][0] !== 'B'){
                 $log.info("Black turn, clicked on white player");
+                $scope.$apply();
                 return;
             }
 
@@ -125,11 +228,14 @@ angular.module('myApp')
            //then replace the last from else just add the from
             if($scope.fromDelta.length === $scope.toDelta.length){
                 $scope.fromDelta.push(row);
+                $scope.$apply();
                 return;
             }else if($scope.fromDelta.length !== $scope.toDelta.length){
                 $scope.fromDelta[$scope.fromDelta.length - 1] = row;
+                $scope.$apply();
                 return;
             }
+            $scope.$apply();
         };
 
         function updateCurrentBoard(from, to){
@@ -238,30 +344,36 @@ angular.module('myApp')
                 }else{
                     //Push the move through and check if that is the last remaining move to be made before the
                     //full move is submitted
+
                     $scope.toDelta.push(row);
-                    backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
-                    //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
+                    addAnimationClass(function(){
+                        backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
+                        //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
 
-                    angular.copy($scope.dice, $scope.fullDiceArray);
-                    $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
-                    backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
+                        angular.copy($scope.dice, $scope.fullDiceArray);
+                        $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
+                        backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
 
 
-                    //Check if there are any remaining legal moves. If not then send the move
-                    if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
-                        try{
-                            var move = backGammonLogicService
-                                .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+                        //Check if there are any remaining legal moves. If not then send the move
+                        if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
+                            try{
+                                var move = backGammonLogicService
+                                    .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
 
-                            console.log("move being made");
-                            gameService.makeMove(move);
-                        }catch(e){
-                            $log.info("Illegal Move");
-                            console.log(e);
+                                console.log("move being made");
+
+                                gameService.makeMove(move);
+                            }catch(e){
+                                $log.info("Illegal Move");
+                                console.log(e);
+                            }
                         }
-                    }
+                    });
+
                 }
             }
+            $scope.$apply();
         };
 
         //Gives the total number of moves that can be made, expands the dice to 4 items if doubles are rolled
@@ -294,12 +406,49 @@ angular.module('myApp')
             //From the board in scope
             var cell = $scope.board[row][col];
 
+            var colOfMove = -1;
+            var returnObject = {imgSource: '', isBlackMan: false,isWhiteMan : false, isSelected: false};
+
+
+            //If a move in progress then highlight the blot
+            if($scope.fromDelta.length > $scope.toDelta.length &&
+                $scope.fromDelta[$scope.fromDelta.length - 1] === row){
+
+                for(var i =14; i >= 0; i--){
+                    if($scope.board[row][i] !== ""){
+                        colOfMove = i;
+                        break;
+                    }
+                }
+            }
+
+
             if(cell === 'W'){
-                return 'white_man.png'
+                if(colOfMove === col){
+                    returnObject.imgSource = 'white_man_selected.png';
+                    returnObject.isWhiteMan = true;
+                    returnObject.isSelected = true;
+                    return returnObject;
+                }else{
+                    returnObject.imgSource = 'white_man.png';
+                    returnObject.isWhiteMan = true;
+                    return returnObject;
+                }
+
+
             }else if(cell === 'B'){
-                return 'black_man.png'
+                if(colOfMove === col){
+                    returnObject.imgSource = "black_man_selected.png";
+                    returnObject.isBlackMan = true;
+                    returnObject.isSelected = true;
+                    return returnObject;
+                }else{
+                    returnObject.imgSource = 'black_man.png';
+                    returnObject.isBlackMan = true;
+                    return returnObject;
+                }
             }else{
-                return '';
+                return returnObject;
             }
         };
 

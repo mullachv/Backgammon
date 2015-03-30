@@ -1,0 +1,47 @@
+.background_image {
+  max-width: 100%;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+}
+
+.isEmpty, .isBlackMan .isWhiteMan{
+  max-width: 100%;
+  position: absolute;
+  z-index: 20;
+}
+
+.isBlackMan.canSelect{
+  animation: black-blink 1s infinite;
+  -webkit-animation: black-blink 1s infinite;
+}
+
+.isWhiteMan.canSelect {
+  animation: white-blink 1s infinite;
+  -webkit-animation: white-blink 1s infinite;
+}
+
+/****************************************
+Animation
+****************************************/
+.test{
+    -webkit-animation: move_right 0.4s linear forwards;
+}
+
+/*move up right*/
+@-webkit-keyframes move_right {
+
+    0% {
+
+
+    }
+    50% {
+        max-width: 2000%;
+
+    }
+    100% {
+        max-width: 100%;
+
+    }
+}
+
