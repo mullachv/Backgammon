@@ -75,7 +75,7 @@
                 canSelect: getImageSource(row,column).isSelected,
                 isBlackMan:getImageSource(row,column).isBlackMan,
                 isWhiteMan: getImageSource(row,column).isWhiteMan,
-
+                slowlyAppear: shouldSlowlyAppear(row,column)
              }"
              >
             <!--ng-style = "{'position':'absolute', 'top':getColumnPositon(row, column), 'right':getRowPosition(row), 'width':'7%', 'height':'7%'}"-->

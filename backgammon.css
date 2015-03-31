@@ -24,24 +24,38 @@
 /****************************************
 Animation
 ****************************************/
-.test{
-    -webkit-animation: move_right 0.4s linear forwards;
+.slowlyAppear{
+    -webkit-animation: slowlyAppear 2s linear;
+    animation: slowlyAppear 2s linear;
 }
 
-/*move up right*/
-@-webkit-keyframes move_right {
-
-    0% {
-
-
-    }
-    50% {
-        max-width: 2000%;
-
-    }
-    100% {
-        max-width: 100%;
-
-    }
+.slowlyDisapear{
+    -webkit-animation: slowlyDisapear 2s linear;
+    animation: slowlyDisapear 2s linear;
 }
+
+@-webkit-keyframes slowlyAppear {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+/* Standard syntax */
+@keyframes slowlyAppear {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@-webkit-keyframes slowlyDisapear {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
+/* Standard syntax */
+@keyframes slowlyDisapear {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
+
+
 

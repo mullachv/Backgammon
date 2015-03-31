@@ -13,11 +13,36 @@ angular.module('myApp')
 
 
 
-        function addAnimationClass(callback){
+        $scope.shouldSlowlyAppear = function(row,column){
+            if($scope.fromDelta.length === 0 || $scope.toDelta.length === 0){
+                return false;
+            }
+            var from = $scope.fromDelta[$scope.fromDelta.length - 1];
+            var to = $scope.toDelta[$scope.toDelta.length - 1];
+            var player = $scope.board[from][0];
+            var columnTo = -1;
+
+
+            for(var i  = 14; i >= 0; i--) {
+                if ($scope.board[to][i] === player) {
+                    columnTo = i;
+                    break;
+                }
+            }
+
+            if(to === row && column === columnTo){
+                return true;
+            }else{
+                return false;
+            }
+        };
+
+        function addAnimationFrom(){
             var from = $scope.fromDelta[$scope.fromDelta.length - 1];
             var to = $scope.toDelta[$scope.toDelta.length - 1];
             var player = $scope.board[from][0];
             var column = -1;
+
 
             for(var i  = 14; i >= 0; i--) {
                 if ($scope.board[from][i] === player) {
@@ -25,12 +50,11 @@ angular.module('myApp')
                     break;
                 }
             }
+
+
+
             var element1 = document.getElementById('e2e_test_piece_' + player + '_'+from+'_'+column);
-            $animate.addClass(element1, 'test',callback);
-
-
-
-
+            $animate.addClass(element1, 'slowlyDisapear');
 
         }
 
@@ -81,20 +105,6 @@ angular.module('myApp')
                 $scope.turnIndex = params.turnIndexAfterMove;
 
 
-//
-//            if(params.stateBeforeMove === null){
-//                $scope.board = backGammonLogicService.getInitialBoard();
-//                $scope.fromDelta = [];
-//                $scope.toDelta = [];
-//                $scope.dice = [];
-//                $scope.turnIndex = 0;
-//            }else{
-//                $scope.board = params.stateAfterMove.board;
-//                $scope.fromDelta = [];
-//                $scope.toDelta = [];
-//                $scope.dice = $scope.rollDice();
-//                $scope.turnIndex = params.turnIndexAfterMove;
-//            }
             var tempDice =[];
             angular.copy($scope.dice,tempDice);
             tempDice = backGammonLogicService.totalMoves(tempDice);
@@ -138,43 +148,6 @@ angular.module('myApp')
             }
         };
 
-
-//        window.handleEvent = function (event, type, x, y) {
-//            var row = -1;
-//
-//            if(isPiece(event.target.id)){
-//                row = getRow(event.target.id);
-//                $scope.clickPiece(row);
-//
-//                console.log(event.changedTouches[0]);
-//
-//            }else if(isBgSpace(event.target.id)){
-//                console.log("Space found");
-//                row = getRow(event.target.id);
-//                $scope.clickSpace(row);
-//
-//            }
-//              console.log("nothing found");
-//
-////
-////
-////            alert(event.target.id);
-//
-////            startOrEnd = _startOrEnd;
-////            console.log("handleInvisibleDivEvent:", event, startOrEnd);
-////            event.preventDefault();
-////
-////            var touch = event.changedTouches ? event.changedTouches[0] : event;
-////            var simulatedEvent = document.createEvent("MouseEvent");
-////            simulatedEvent.initMouseEvent("click", true, true, window, 1,
-////                touch.screenX, touch.screenY,
-////                touch.clientX, touch.clientY, false,
-////                false, false, false, 0, null);
-////
-////            invisibleDivAboveAreaMap.style.display = "none"; // Making it invisible to we find the correct elementFromPoint
-////            document.elementFromPoint(touch.clientX,touch.clientY).dispatchEvent(simulatedEvent);
-////            invisibleDivAboveAreaMap.style.display = "block";
-//        };
 
         function isPiece(id){
             if( id.indexOf("piece") > -1){
@@ -346,7 +319,9 @@ angular.module('myApp')
                     //full move is submitted
 
                     $scope.toDelta.push(row);
-                    addAnimationClass(function(){
+                    addAnimationFrom();
+                    var wait = 1000;
+                    $timeout(function(){
                         backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
                         //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
 
@@ -354,6 +329,7 @@ angular.module('myApp')
                         $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
                         backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
 
+                        //addAnimationTo();
 
                         //Check if there are any remaining legal moves. If not then send the move
                         if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
@@ -369,7 +345,9 @@ angular.module('myApp')
                                 console.log(e);
                             }
                         }
-                    });
+                    },wait);
+
+
 
                 }
             }
