@@ -1100,7 +1100,8 @@
 
                                 legalToMove = fromPosition - singleRoll;
 
-                            } else if (fromPosition - singleRoll > 2 && canExit(board, player)) {
+                            } else if (fromPosition - singleRoll < 2 && canExit(board, player)) {
+                                console.log("Can exit reached");
                                 legalToMove = 0;
                             }
                         }

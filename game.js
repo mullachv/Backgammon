@@ -4,11 +4,11 @@
 'use strict';
 angular.module('myApp')
     .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
-        'gameService', 'stateService', 'backGammonLogicService',
+        'aiService','gameService', 'stateService', 'backGammonLogicService',
         'resizeGameAreaService',
     function (
         $scope,$animate,$element, $log, $timeout,
-        gameService,stateService, backGammonLogicService, resizeGameAreaService) {
+        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService) {
         resizeGameAreaService.setWidthToHeight(1);
 
 
@@ -100,8 +100,8 @@ angular.module('myApp')
                 $scope.fromDelta = [];
                 $scope.toDelta = [];
                 $scope.dice = [params.stateAfterMove.dice1, params.stateAfterMove.dice2];
-            $scope.dice1 = params.stateAfterMove.dice1;
-            $scope.dice2 = params.stateAfterMove.dice2;
+                $scope.dice1 = params.stateAfterMove.dice1;
+                $scope.dice2 = params.stateAfterMove.dice2;
                 $scope.turnIndex = params.turnIndexAfterMove;
 
 
@@ -117,17 +117,19 @@ angular.module('myApp')
 
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer"){
-
-                var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,'B');
-
-                //Select random possible move
-                var selection = Math.floor(Math.random() * possibleMoves.length) + 1;
-
-                for(var i =0; i< possibleMoves.from.length; i++){
-                    $scope.clickPiece(possibleMoves.from[i]);
-                    $scope.clickSpace(possibleMoves.to[i]);
+                var player;
+                if($scope.turnIndex === 0){
+                    player = 'W';
+                }else{
+                    player = 'B'
                 }
 
+                var move = aiService.createComputerMove($scope.board,$scope.fullDiceArray,player);
+
+                for(var i =0; i< move.from.length; i++){
+                    $scope.clickPiece(move.from[i]);
+                    $scope.clickSpace(move.to[i]);
+                }
             }
 
 
