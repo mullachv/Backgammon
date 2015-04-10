@@ -116,13 +116,9 @@ angular.module('myApp')
 
 
             //If playing the computer then select a random move
-            if(params.playMode === "playAgainstTheComputer"){
-                var player;
-                if($scope.turnIndex === 0){
-                    player = 'W';
-                }else{
-                    player = 'B'
-                }
+            if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1){
+                var player = 'B';
+
 
                 var move = aiService.createComputerMove($scope.board,$scope.fullDiceArray,player);
 
