@@ -25,13 +25,13 @@
 Animation
 ****************************************/
 .slowlyAppear{
-    -webkit-animation: slowlyAppear 2s linear;
-    animation: slowlyAppear 2s linear;
+    -webkit-animation: slowlyAppear 1s linear;
+    animation: slowlyAppear 1s linear;
 }
 
 .slowlyDisapear{
-    -webkit-animation: slowlyDisapear 2s linear;
-    animation: slowlyDisapear 2s linear;
+    -webkit-animation: slowlyDisapear .5s linear;
+    animation: slowlyDisapear .5s linear;
 }
 
 @-webkit-keyframes slowlyAppear {

@@ -6,13 +6,10 @@ angular.module('myApp').factory('aiService' , ['backGammonLogicService',
 function(backGammonLogicService){
     'use strict';
 
-    function createComputerMove(board, rollArray, player){
+    function createComputerMove(board, rollArray, player, possibleMoves){
         var start = new Date().getTime();
         var topScore = -1;
         var bestMove = 0;
-
-        //get possible moves
-        var possibleMoves = backGammonLogicService.getPossibleMoves(board, rollArray, player);
 
         //create board for the move
         for (var i = 0; i < possibleMoves.length;i++){
@@ -24,7 +21,6 @@ function(backGammonLogicService){
                 currentBoard =
                     backGammonLogicService.makeMove(currentBoard,possibleMoves[i].from[j],possibleMoves[i].to[j],player);
             }
-
 
             var score = scoreBoard(player,currentBoard);
             if(score > topScore){

@@ -114,7 +114,13 @@ angular.module('myApp')
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
 
-            params.playMode = "playAgainstTheComputer";
+            if($scope.turnIndex === 0){
+                var currentPlayer = 'W';
+            }else{
+                var currentPlayer = 'B';
+            }
+
+            $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
@@ -138,7 +144,8 @@ angular.module('myApp')
             angular.copy($scope.board,tempBoard);
             angular.copy($scope.fullDiceArray,tempDiceArray);
 
-            var move = aiService.createComputerMove(tempBoard,tempDiceArray,player);
+
+            var move = aiService.createComputerMove(tempBoard,tempDiceArray,player,$scope.possibleMoves);
             console.log("ai best move :" + move);
 
             try{
@@ -161,14 +168,9 @@ angular.module('myApp')
                         {setRandomInteger: {key: 'dice2', from:1, to:7}}]
                     gameService.makeMove(move);
                 }else{
-                    $scope.$apply();
-                    sleep(2000);
                     for(var i =0; i< move.from.length; i++){
-
-                        $scope.clickPiece(move.from[i]);
-                        sleep(2000);
-                        $scope.clickSpace(move.to[i]);
-                        sleep(2000);
+                        clickPieceInXMilliseconds(move.from[i], i * 2000);
+                        clickSpaceInXMilliseconds(move.to[i], 1000 + i * 2000);
                     }
                 }
             }catch(e){
@@ -177,13 +179,16 @@ angular.module('myApp')
             }
         }
 
-        function sleep(milliseconds) {
-            var start = new Date().getTime();
-            for (var i = 0; i < 1e7; i++) {
-                if ((new Date().getTime() - start) > milliseconds){
-                    break;
-                }
-            }
+        function clickPieceInXMilliseconds(piece, milliseconds) {
+            $timeout(function () {
+                $scope.clickPiece(piece);
+            }, milliseconds);
+        }
+
+        function clickSpaceInXMilliseconds(piece, milliseconds) {
+            $timeout(function () {
+                $scope. clickSpace(piece);
+            }, milliseconds);
         }
 
         window.e2e_test_statexService = stateService;
@@ -237,7 +242,7 @@ angular.module('myApp')
 
         $scope.clickPiece = function(row){
 
-            console.log("piece clicked");
+            console.log("piece clicked" + row);
             if($scope.fullDiceArray.length === 4){
                 var debugStmt = '';
             }
@@ -248,6 +253,7 @@ angular.module('myApp')
                 $scope.$apply();
                 return;
             }else if($scope.turnIndex === 1 && $scope.board[row][0] !== 'B'){
+                console.log($scope.board[row][0]);
                 $log.info("Black turn, clicked on white player");
                 $scope.$apply();
                 return;
@@ -316,6 +322,7 @@ angular.module('myApp')
                 console.log($scope.fullDiceArray);
                 //Check if the player is trying to exit the board, if so can they
                 var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
+
                 console.log("full dice array after:");
                 console.log($scope.fullDiceArray);
                 var madeLegalMove = false;
@@ -395,7 +402,7 @@ angular.module('myApp')
 
                     $scope.toDelta.push(row);
                     addAnimationFrom();
-                    var wait = 1000;
+                    var wait = 500;
                     $timeout(function(){
                         backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
                         //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
@@ -403,6 +410,11 @@ angular.module('myApp')
                         angular.copy($scope.dice, $scope.fullDiceArray);
                         $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray);
                         backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
+                        console.log('************************************');
+                        console.log($scope.fromDelta);
+                        console.log($scope.toDelta);
+                        console.log($scope.fullDiceArray);
+                        console.log('************************************');
 
                         //addAnimationTo();
 
