@@ -138,23 +138,31 @@
                         }
                     }
 
-                    //Check that all blots that were taken entered before other moves were made
-                    for(var i = 0; i < toDelta.length; i++){
-                        if(playerCaptured(currentPlayer,board)){
-                            //If player didn't move off the taken spot then check if any other moves were made
-                            for(var j = 0; j<toDelta.length;j++){
+                    //Count the number of players on the taken spot
+                    if(playerCaptured(currentPlayer,board)){
+                        var indexToCheck = takenIndex(currentPlayer);
 
-                                //If a move was made that didn't remove a blot back onto the board then decalre an
-                                //illegal move
-
-                                if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
-                                    !(fromDelta[j] === 1 || fromDelta[j] === 26)){
-                                    console.log(145);
-                                    return false;
-                                }
-
+                        //count the number of pieces in the taken spot
+                        var numberTaken = 0;
+                        for(var i = 0; i<15;i++){
+                            if(board[indexToCheck][i] === currentPlayer){
+                                numberTaken += 1;
                             }
+                        }
 
+                        //count the number of moves from the taken spot
+                        var movesFromTaken = 0;
+                        for(var i = 0; i < fromDelta.length; i++){
+                            if(fromDelta[i]===indexToCheck){
+                                movesFromTaken+=1;
+                            }
+                        }
+
+                        //if the number of moves from the taken spot is less than the number taken and there are moves
+                        //taken then decalre an illegal move
+                        if(movesFromTaken < numberTaken && fromDelta.length > movesFromTaken){
+                            console.log(164);
+                            return false;
                         }
                     }
 
@@ -865,7 +873,7 @@
                     if(player === 'W' && board[1][0] ==='W') {
 
                         for (var i = 0; i < remainingMoves.length; i++) {
-                            if (heldBy(board, remainingMoves[i]) !== 'B') {
+                            if (heldBy(board, remainingMoves[i] + 1) !== 'B') {
                                 return true;
                             }
                         }
@@ -1016,7 +1024,7 @@
                                 newBoard = makeMove(newBoard,from,legalMoves,player);
                                 var test = getPossibleMoves(newBoard,remainingRolls,player);
 
-                                if(test !== false && test !== undefined){
+                                if(test !== false && test !== undefined && test !== []){
                                     for(var counter = 0 ; counter < test.length;counter++ ){
                                         var tempArray = [];
                                         angular.copy(currentResult,tempArray);

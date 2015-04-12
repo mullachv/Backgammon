@@ -7,6 +7,7 @@ function(backGammonLogicService){
     'use strict';
 
     function createComputerMove(board, rollArray, player){
+        var start = new Date().getTime();
         var topScore = -1;
         var bestMove = 0;
 
@@ -20,26 +21,20 @@ function(backGammonLogicService){
 
 
             for(var j = 0; j < possibleMoves[i].from.length; j++){
-                console.log(i);
-                console.log(j);
-                console.log(possibleMoves[i].from[j]);
-                console.log(possibleMoves[i].to[j]);
                 currentBoard =
                     backGammonLogicService.makeMove(currentBoard,possibleMoves[i].from[j],possibleMoves[i].to[j],player);
             }
 
 
             var score = scoreBoard(player,currentBoard);
-            console.log(currentBoard);
-            console.log("Score:" + score);
             if(score > topScore){
-
-                console.log("TopScore:"+topScore);
                 topScore = score;
                 bestMove = i;
             }
         }
         //return the move with the max score
+        var end = new Date().getTime();
+        console.log(end - start);
         return possibleMoves[bestMove];
 
     }

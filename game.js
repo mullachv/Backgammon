@@ -114,24 +114,79 @@ angular.module('myApp')
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
 
+            params.playMode = "playAgainstTheComputer";
 
             //If playing the computer then select a random move
-            if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1){
-                var player = 'B';
-
-
-                var move = aiService.createComputerMove($scope.board,$scope.fullDiceArray,player);
-
-                for(var i =0; i< move.from.length; i++){
-                    $scope.clickPiece(move.from[i]);
-                    $scope.clickSpace(move.to[i]);
-                }
+            if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
+                params.playMode === "aisOnly"){
+                $scope.$apply()
+                createComputerMover();
             }
-
-
         }
 
-        window.e2e_test_stateService = stateService;
+        function createComputerMover(){
+            var testingVaribale = true;
+
+            if($scope.turnIndex === 0){
+                var player = 'W';
+            }else{
+                var player = 'B';
+            }
+
+            var tempBoard = [[]];
+            var tempDiceArray =[];
+            angular.copy($scope.board,tempBoard);
+            angular.copy($scope.fullDiceArray,tempDiceArray);
+
+            var move = aiService.createComputerMove(tempBoard,tempDiceArray,player);
+            console.log("ai best move :" + move);
+
+            try{
+                //if no legal move then switch turns
+                if(move === [] || move === undefined){
+                    testingVaribale = false;
+                    var turnIdx;
+                    if(player === 'W') {
+                        turnIdx = 1;
+                    }else {
+                        turnIdx = 0;
+                    }
+
+                    var setTurn = {setTurn: {turnIndex: turnIdx}};
+                    var move = [setTurn,
+                        {set: {key: 'board', value: $scope.board}},
+                        {set: {key: 'fromDelta', value: {fromDelta: $scope.fromDelta}}},
+                        {set: {key: 'toDelta', value: {toDelta: $scope.toDelta}}},
+                        {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                        {setRandomInteger: {key: 'dice2', from:1, to:7}}]
+                    gameService.makeMove(move);
+                }else{
+                    $scope.$apply();
+                    sleep(2000);
+                    for(var i =0; i< move.from.length; i++){
+
+                        $scope.clickPiece(move.from[i]);
+                        sleep(2000);
+                        $scope.clickSpace(move.to[i]);
+                        sleep(2000);
+                    }
+                }
+            }catch(e){
+                $log.info("Illegal Move");
+                console.log(e);
+            }
+        }
+
+        function sleep(milliseconds) {
+            var start = new Date().getTime();
+            for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds){
+                    break;
+                }
+            }
+        }
+
+        window.e2e_test_statexService = stateService;
 
         window.handleDragEvent = function(event, type, clientX, clientY){
             console.log(event.target.id);
@@ -183,6 +238,9 @@ angular.module('myApp')
         $scope.clickPiece = function(row){
 
             console.log("piece clicked");
+            if($scope.fullDiceArray.length === 4){
+                var debugStmt = '';
+            }
 
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
@@ -254,11 +312,6 @@ angular.module('myApp')
                 $log.info("Not blacks turn");
             }else{
 
-                //check if the space being moved to is held by the opposing player if it is then don't allow
-                if(backGammonLogicService.heldBy($scope.board,row) === opposingPlayer){
-                    console.log("positoin held by opposing player");
-                    return;
-                }
                 console.log("full dice array before:");
                 console.log($scope.fullDiceArray);
                 //Check if the player is trying to exit the board, if so can they
@@ -297,8 +350,32 @@ angular.module('myApp')
                     if(possibleMoves === false){
                         if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
                             try{
-                                var move = backGammonLogicService
-                                    .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+                                //remove latest clicked from delta
+                                $scope.fromDelta.pop();
+
+                                //Create a partial move if there was one,
+                                if($scope.fromDelta.length > 0){
+                                    var move = backGammonLogicService
+                                        .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+
+                                }else{
+                                    var turnIdx;
+                                    if(currentPlayer === 'W') {
+                                        turnIdx = 1;
+                                    }else {
+                                        turnIdx = 0;
+                                    }
+
+                                    var setTurn = {setTurn: {turnIndex: turnIdx}};
+                                    var move = [setTurn,
+                                        {set: {key: 'board', value: $scope.board}},
+                                        {set: {key: 'fromDelta', value: {fromDelta: $scope.fromDelta}}},
+                                        {set: {key: 'toDelta', value: {toDelta: $scope.toDelta}}},
+                                        {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                                        {setRandomInteger: {key: 'dice2', from:1, to:7}}]
+                                }
+
+
 
                                 console.log("move being made");
                                 gameService.makeMove(move);
@@ -324,7 +401,7 @@ angular.module('myApp')
                         //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
 
                         angular.copy($scope.dice, $scope.fullDiceArray);
-                        $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
+                        $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray);
                         backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
 
                         //addAnimationTo();
