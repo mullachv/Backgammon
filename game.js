@@ -60,7 +60,8 @@ angular.module('myApp')
 
 
         function updateUI(params){
-
+            console.log("Current State Service = ");
+            console.log(stateService);
             var state = stateService.getMatchState();
             console.log(state);
                 if(params.stateAfterMove.board === undefined){
@@ -119,7 +120,7 @@ angular.module('myApp')
             }else{
                 var currentPlayer = 'B';
             }
-
+            params.playMode = "playAgainstTheComputer";
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
             //If playing the computer then select a random move
@@ -241,7 +242,7 @@ angular.module('myApp')
 
 
         $scope.clickPiece = function(row){
-
+            checkInvariant();
             console.log("piece clicked" + row);
             if($scope.fullDiceArray.length === 4){
                 var debugStmt = '';
@@ -271,6 +272,7 @@ angular.module('myApp')
                 return;
             }
             $scope.$apply();
+            checkInvariant();
         };
 
         function updateCurrentBoard(from, to){
@@ -290,13 +292,20 @@ angular.module('myApp')
             }
         }
 
-        $scope.clickSpace = function(row){
+        function checkInvariant() {
+            if ($scope.toDelta.length !== $scope.fromDelta.length && $scope.toDelta.length !== $scope.fromDelta.length - 1) {
+                throw new Error("Invariant broken: fromDelta=" + $scope.fromDelta + " toDelta=" + $scope.toDelta);
+            }
+        }
 
+        $scope.clickSpace = function(row){
+            checkInvariant();
             console.log("SUCESS: " + row);
 
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length === $scope.fromDelta.length){
                 console.log("Must select a piece to move first");
+                return;
             }
 
             var currentPlayer;
