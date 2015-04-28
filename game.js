@@ -134,7 +134,7 @@ angular.module('myApp')
 
 
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
-
+            console.log("MODE: " + params.playMode);
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
                 params.playMode === "aisOnly"){
