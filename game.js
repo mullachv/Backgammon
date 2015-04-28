@@ -120,7 +120,12 @@ angular.module('myApp')
             }else{
                 var currentPlayer = 'B';
             }
-            params.playMode = "playAgainstTheComputer";
+
+            $scope.isYourTurn = params.turnIndexAfterMove >=0 &&          // -1 means game end, -2 means game viewer
+                params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
+            if (!(isEmptyObj(params.stateAfterMove) && $scope.isYourTurn)) {
+                return;
+            }
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
             //If playing the computer then select a random move
@@ -129,6 +134,14 @@ angular.module('myApp')
                 $scope.$apply()
                 createComputerMover();
             }
+        }
+
+        function isEmptyObj(obj){
+            for(var prop in obj) {
+                if(obj.hasOwnProperty(prop))
+                    return false;
+            }
+            return true;
         }
 
         function createComputerMover(){
