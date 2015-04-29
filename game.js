@@ -6,11 +6,13 @@ angular.module('myApp')
     .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
         'aiService','gameService', 'stateService', 'backGammonLogicService',
         'resizeGameAreaService',
-    function (
+
+        function (
         $scope,$animate,$element, $log, $timeout,
         aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService) {
         resizeGameAreaService.setWidthToHeight(1);
 
+        $scope.counter = 0;
 
 
         $scope.shouldSlowlyAppear = function(row,column){
@@ -60,41 +62,49 @@ angular.module('myApp')
 
 
         function updateUI(params){
+            if($scope.counter === 0){
+                $scope.counter = 1;
+                return;
+            }else if($scope.counter === 1){
+                $scope.counter = 2;
+                makeInitialMove();
+                return;
+            }
             var state = stateService.getMatchState();
 
-//                if(params.stateAfterMove.board === undefined){
-//                    var temp = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-//                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
-//                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
-//                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
-//                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
-//                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
-//                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
-//                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
-//                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
-//                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27;
-//                    $scope.board = temp;
-//                }else{
+                if(params.stateAfterMove.board === undefined){
+                    var temp = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
+                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27;
+                    $scope.board = temp;
+                }else{
                     $scope.board = params.stateAfterMove.board;
-//                }
+                }
 
                 $scope.fromDelta = [];
                 $scope.toDelta = [];
@@ -120,21 +130,21 @@ angular.module('myApp')
             }
 
             //Checking for initial fake make move
-            $scope.isYourTurn = params.stateBeforeMove !== null &&          // -1 means game end, -2 means game viewer
-                params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
-
-            console.log("player index: "+params.yourPlayerIndex);
-            console.log("player index after: "+params.turnIndexAfterMove);
-
-            if ($scope.dice1 === undefined || $scope.dice1 == null){
-                if($scope.isYourTurn){
-                    debugger;
-                    makeInitialMove();
-                    return;
-                }else{
-                    return;
-                }
-            }
+//            $scope.isYourTurn = params.stateBeforeMove !== null &&          // -1 means game end, -2 means game viewer
+//                params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
+//
+//            console.log("player index: "+params.yourPlayerIndex);
+//            console.log("player index after: "+params.turnIndexAfterMove);
+//
+//            if ($scope.dice1 === undefined || $scope.dice1 == null){
+//                if($scope.isYourTurn){
+//                    debugger;
+//                    makeInitialMove();
+//                    return;
+//                }else{
+//                    return;
+//                }
+//            }
 
 
 
