@@ -93,7 +93,7 @@ angular.module('myApp')
         function updateUI(params){
             if((params.stateBeforeMove === null  && $scope.counter === 2)){
                 $scope.counter = 0;
-            }else if(params.stateBeforeMove.board === undefined && $scope.counter ===2){
+            }else if($scope.counter ===2 &&params.stateBeforeMove.board === undefined){
                 $scope.counter = 0;
             }
             if($scope.counter === 0){
