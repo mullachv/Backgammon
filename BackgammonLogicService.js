@@ -65,6 +65,11 @@
                     if(params.stateBeforeMove.board === undefined){
                         return true;
                     }
+                    if(params.stateBeforeMove.board === getInitialBoard() && params.toDelta.length === 0){
+                        return true;
+                    }
+
+
 
 
                     var board = params.stateBeforeMove.board;
