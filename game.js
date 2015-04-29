@@ -128,6 +128,7 @@ angular.module('myApp')
 
             if ($scope.dice1 === undefined || $scope.dice1 == null){
                 if($scope.isYourTurn){
+                    debugger;
                     makeInitialMove();
                     return;
                 }else{
