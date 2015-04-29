@@ -92,7 +92,7 @@ angular.module('myApp')
 
         function updateUI(params){
             console.log(params);
-            if(params.stateBeforeMove === null && $scope.counter ===2){
+            if((params.stateBeforeMove === null || params.stateBeforeMove.board === undefined) && $scope.counter ===2){
                 clearGameState();
             }
             if($scope.counter === 0){
