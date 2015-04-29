@@ -529,18 +529,20 @@ angular.module('myApp')
 
             var colOfMove = -1;
             var returnObject = {imgSource: '', isBlackMan: false,isWhiteMan : false, isSelected: false};
-
+            var initialState = false;
             if($scope.fromDelta === undefined || $scope.fromDelta === null || $scope.fromDelta.length === 0){
-                return returnObject;
+                initialState = true;
             }
             //If a move in progress then highlight the blot
-            if($scope.fromDelta.length > $scope.toDelta.length &&
-                $scope.fromDelta[$scope.fromDelta.length - 1] === row){
+            if(!initialState){
+                if($scope.fromDelta.length > $scope.toDelta.length &&
+                    $scope.fromDelta[$scope.fromDelta.length - 1] === row){
 
-                for(var i =14; i >= 0; i--){
-                    if($scope.board[row][i] !== ""){
-                        colOfMove = i;
-                        break;
+                    for(var i =14; i >= 0; i--){
+                        if($scope.board[row][i] !== ""){
+                            colOfMove = i;
+                            break;
+                        }
                     }
                 }
             }
