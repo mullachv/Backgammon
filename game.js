@@ -122,7 +122,7 @@ angular.module('myApp')
             //Checking for initial fake make move
             $scope.isYourTurn = params.turnIndexAfterMove >=0 &&          // -1 means game end, -2 means game viewer
                 params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
-            if (!(isEmptyObj(params.stateAfterMove) && $scope.isYourTurn)) {
+            if (isEmptyObj(params.stateAfterMove) || !$scope.isYourTurn) {
                 return;
             }
 
