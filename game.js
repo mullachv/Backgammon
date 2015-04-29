@@ -87,16 +87,11 @@ angular.module('myApp')
             $animate.addClass(element1, 'slowlyDisapear');
 
         }
-        var intialmovecounter = 0;
-        var resetcounter = 0;
-        var zerocunter =0;
-
 
         function updateUI(params){
             if((params.stateBeforeMove === null  && $scope.counter === 2)){
                 $scope.counter = 0;
-                resetcounter++;
-                console.log(resetcounter);
+
             }
 
             if($scope.counter === 0){
@@ -105,13 +100,9 @@ angular.module('myApp')
                 $scope.toDelta = [];
 
                 $scope.board = $scope.initialBoard;
-                zerocunter++;
-                console.log(zerocunter);
                 return;
             }else if($scope.counter === 1){
                 $scope.counter = 2;
-                intialmovecounter++;
-                console.log(intialmovecounter);
                 makeInitialMove();
                 return;
             }
