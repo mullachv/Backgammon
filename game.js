@@ -163,7 +163,7 @@ angular.module('myApp')
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
                 params.playMode === "aisOnly"){
-                //$scope.$apply()
+                $scope.$apply()
                 createComputerMover();
             }
         }
