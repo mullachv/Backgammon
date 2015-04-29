@@ -120,7 +120,7 @@ angular.module('myApp')
             }
 
             //Checking for initial fake make move
-            $scope.isYourTurn = params.turnIndexAfterMove >=0 &&          // -1 means game end, -2 means game viewer
+            $scope.isYourTurn = params.stateBeforeMove != null &&          // -1 means game end, -2 means game viewer
                 params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
 
 
@@ -131,17 +131,8 @@ angular.module('myApp')
                 }else{
                     return;
                 }
-
-
-
             }
 
-
-            //If not the intial fake move then check if this is the second move is so send make move
-            if ($scope.dice1 === undefined || $scope.dice1 == null){
-                makeInitialMove();
-                return;
-            }
 
 
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
