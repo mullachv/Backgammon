@@ -66,7 +66,11 @@
                         return true;
                     }
                     var initialBoard = getInitialBoard();
-                    if(angular.equals(params.stateBeforeMove.board,initialBoard) && params.toDelta.toDelta === undefined){
+                    if(angular.equals(params.stateBeforeMove.board,initialBoard) && params.toDelta === undefined){
+                        return true;
+                    }
+
+                    if(angular.equals(params.stateAfterMove.board,initialBoard)){
                         return true;
                     }
 
