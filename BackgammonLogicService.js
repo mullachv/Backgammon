@@ -56,7 +56,7 @@
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
                         ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']]//opponent exits the board 27
                 }
 
                 function isMoveOk(params){
@@ -65,7 +65,8 @@
                     if(params.stateBeforeMove.board === undefined){
                         return true;
                     }
-                    if(params.stateBeforeMove.board === getInitialBoard() && params.toDelta === undefined){
+                    var initialBoard = getInitialBoard();
+                    if(params.stateBeforeMove.board === initialBoard && params.toDelta === undefined){
                         return true;
                     }
 
