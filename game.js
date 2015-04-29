@@ -120,9 +120,11 @@ angular.module('myApp')
             }
 
             //Checking for initial fake make move
-            $scope.isYourTurn = params.stateBeforeMove != null &&          // -1 means game end, -2 means game viewer
+            $scope.isYourTurn = params.stateBeforeMove !== null &&          // -1 means game end, -2 means game viewer
                 params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
 
+            console.log("player index: "+params.yourPlayerIndex);
+            console.log("player index after: "+params.turnIndexAfterMove);
 
             if ($scope.dice1 === undefined || $scope.dice1 == null){
                 if($scope.isYourTurn){
@@ -136,7 +138,7 @@ angular.module('myApp')
 
 
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
-            console.log("MODE: " + params.playMode);
+
             //If playing the computer then select a random move
             if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
                 params.playMode === "aisOnly"){
@@ -169,7 +171,6 @@ angular.module('myApp')
 
 
             var move = aiService.createComputerMove(tempBoard,tempDiceArray,player,$scope.possibleMoves);
-            console.log("ai best move :" + move);
 
             try{
                 //if no legal move then switch turns
@@ -217,14 +218,10 @@ angular.module('myApp')
         window.e2e_test_statexService = stateService;
 
         window.handleDragEvent = function(event, type, clientX, clientY){
-            console.log(event.target.id);
-            console.log(type +" "+ clientX+ " " + clientY);
             var id = event.target.id;
             if(type === 'touchstart' && isPiece(id)){
-                console.log("picec clicked: "+ getRow(id));
                 $scope.clickPiece(getRow(id));
             }else if(type === 'touchend' && isBgSpace(id)){
-                console.log("space clicked: " + getRow(id));
                 $scope.clickSpace(getRow(id));
             }
         };
@@ -248,13 +245,10 @@ angular.module('myApp')
 
         function getRow(id){
             var splitString = id.split("_");
-            console.log(splitString);
 
             if(isPiece(id)){
-                console.log("Piece: " + splitString[4]);
                 return parseInt(splitString[4]);
             }else if(isBgSpace(id)){
-                console.log("Space: " + splitString[3]);
                 return parseInt(splitString[3]);
             }else{
                 return false;
@@ -265,7 +259,6 @@ angular.module('myApp')
 
         $scope.clickPiece = function(row){
             checkInvariant();
-            console.log("piece clicked" + row);
             if($scope.fullDiceArray.length === 4){
                 var debugStmt = '';
             }
@@ -276,7 +269,6 @@ angular.module('myApp')
                 $scope.$apply();
                 return;
             }else if($scope.turnIndex === 1 && $scope.board[row][0] !== 'B'){
-                console.log($scope.board[row][0]);
                 $log.info("Black turn, clicked on white player");
                 $scope.$apply();
                 return;
@@ -322,7 +314,6 @@ angular.module('myApp')
 
         $scope.clickSpace = function(row){
             checkInvariant();
-            console.log("SUCESS: " + row);
 
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length === $scope.fromDelta.length){
@@ -349,13 +340,11 @@ angular.module('myApp')
                 $log.info("Not blacks turn");
             }else{
 
-                console.log("full dice array before:");
-                console.log($scope.fullDiceArray);
+
                 //Check if the player is trying to exit the board, if so can they
                 var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
-                console.log("full dice array after:");
-                console.log($scope.fullDiceArray);
+
                 var madeLegalMove = false;
 
                 //Check the first of the from to moves to see if it is possible form teh current board
@@ -441,11 +430,7 @@ angular.module('myApp')
                         angular.copy($scope.dice, $scope.fullDiceArray);
                         $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray);
                         backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
-                        console.log('************************************');
-                        console.log($scope.fromDelta);
-                        console.log($scope.toDelta);
-                        console.log($scope.fullDiceArray);
-                        console.log('************************************');
+
 
                         //addAnimationTo();
 
