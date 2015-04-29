@@ -530,7 +530,7 @@ angular.module('myApp')
             var colOfMove = -1;
             var returnObject = {imgSource: '', isBlackMan: false,isWhiteMan : false, isSelected: false};
 
-            if($scope.fromDelta === undefined || $scope.fromDelta === null){
+            if($scope.fromDelta === undefined || $scope.fromDelta === null || $scope.fromDelta.length === 0){
                 return returnObject;
             }
             //If a move in progress then highlight the blot
