@@ -90,6 +90,9 @@ angular.module('myApp')
 
 
         function updateUI(params){
+            if(params.stateBeforeMove === null && $scope.counter ===2){
+                $scope.counter = 0;
+            }
             if($scope.counter === 0){
                 $scope.counter = 1;
                 $scope.fromDelta = [];
