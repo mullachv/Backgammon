@@ -64,6 +64,8 @@ angular.module('myApp')
         function updateUI(params){
             if($scope.counter === 0){
                 $scope.counter = 1;
+                $scope.fromDelta = [];
+                $scope.toDelta = [];
                 var temp = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
                     ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
                     ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
