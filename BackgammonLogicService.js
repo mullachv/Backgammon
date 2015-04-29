@@ -66,7 +66,7 @@
                         return true;
                     }
                     var initialBoard = getInitialBoard();
-                    if(params.stateBeforeMove.board === initialBoard && params.toDelta === undefined){
+                    if(angular.equals(params.stateBeforeMove.board,initialBoard) && params.toDelta === undefined){
                         return true;
                     }
 
