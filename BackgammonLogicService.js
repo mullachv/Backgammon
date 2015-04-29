@@ -65,7 +65,7 @@
                     if(params.stateBeforeMove.board === undefined){
                         return true;
                     }
-                    if(params.stateBeforeMove.board === getInitialBoard() && params.toDelta.length === 0){
+                    if(params.stateBeforeMove.board === getInitialBoard() && params.toDelta === undefined){
                         return true;
                     }
 
