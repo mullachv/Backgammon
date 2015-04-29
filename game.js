@@ -122,9 +122,11 @@ angular.module('myApp')
             //Checking for initial fake make move
             $scope.isYourTurn = params.turnIndexAfterMove >=0 &&          // -1 means game end, -2 means game viewer
                 params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
-            if (isEmptyObj(params.stateAfterMove) || !$scope.isYourTurn) {
-                return;
-            }
+
+            //If not initail fake move the keep going
+            if ((!isEmptyObj(params.stateAfterMove) && $scope.isYourTurn)) {
+
+
 
             //If not the intial fake move then check if this is the second move is so send make move
             if ($scope.dice1 === undefined || $scope.dice1 == null){
@@ -140,7 +142,7 @@ angular.module('myApp')
                 params.playMode === "aisOnly"){
                 $scope.$apply()
                 createComputerMover();
-            }
+            }}
         }
 
         function isEmptyObj(obj){
