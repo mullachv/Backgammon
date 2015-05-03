@@ -356,7 +356,6 @@ angular.module('myApp')
                 //Check if the player is trying to exit the board, if so can they
                 var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
-
                 var madeLegalMove = false;
 
                 //Check the first of the from to moves to see if it is possible form teh current board
