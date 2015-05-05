@@ -12,6 +12,7 @@ angular.module('myApp')
         aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
         resizeGameAreaService.setWidthToHeight(1);
 
+        console.log("Translation of 'RULES_OF_TICTACTOE' is " + $translate('RULES_OF_BACKGAMMON'));
         $scope.counter = 0;
         $scope.initialBoard = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
                 ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
