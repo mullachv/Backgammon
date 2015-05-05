@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    angular.module('myApp', []).factory('backGammonLogicService',
+    angular.module('myApp', ['ngTouch','ui.bootstrap']).factory('backGammonLogicService',
             function () {
 
                 // This is a simple implementation for constant and enum, so the value

@@ -5,11 +5,11 @@
 angular.module('myApp')
     .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
         'aiService','gameService', 'stateService', 'backGammonLogicService',
-        'resizeGameAreaService',
+        'resizeGameAreaService','$translate',
 
         function (
         $scope,$animate,$element, $log, $timeout,
-        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService) {
+        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
         resizeGameAreaService.setWidthToHeight(1);
 
         $scope.counter = 0;
