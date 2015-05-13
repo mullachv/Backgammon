@@ -57,7 +57,7 @@ module.exports = function(grunt) {
       },
       dist: {
         // Order is important! gameLogic.js must be first because it defines myApp angular module.
-        src: ['BackgammonLogicService.js', 'game.js'],
+        src: ['BackgammonLogicService.js', 'game.js','aiService.js'],
         dest: 'dist/everything.js',
       },
     },
@@ -83,13 +83,22 @@ module.exports = function(grunt) {
         options: {
           basePath: '.',
           cache: [
-            'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
-            'http://yoav-zibin.github.io/emulator/dist/gameServices.min.js',
-            'http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.2.6.1.min.js',
-            'languages/en.js',
-            'http://yoav-zibin.github.io/emulator/main.css',
-            'dist/everything.min.js',
-            'game.css'
+              'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
+              'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-touch.min.js',
+              'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.woff',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.ttf',
+              'http://yoav-zibin.github.io/emulator/dist/turnBasedServices.2.min.js',
+              'http://yoav-zibin.github.io/emulator/main.css',
+              'dist/everything.min.js',
+              'game.css',
+              'imgs/Help1.png',
+              'imgs/Help2.png',
+              'imgs/Help3.png',
+              'imgs/Help4.png',
+              'imgs/Help5.png',
+              'imgs/Help6.png'
           ],
           network: ['dist/everything.min.js.map', 'dist/everything.js'],
           timestamp: true

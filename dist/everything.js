@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    angular.module('myApp', []).factory('backGammonLogicService',
+    angular.module('myApp', ['ngTouch','ui.bootstrap']).factory('backGammonLogicService',
             function () {
 
                 // This is a simple implementation for constant and enum, so the value
@@ -56,7 +56,7 @@
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
                         ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
                         ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27
+                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']]//opponent exits the board 27
                 }
 
                 function isMoveOk(params){
@@ -65,6 +65,16 @@
                     if(params.stateBeforeMove.board === undefined){
                         return true;
                     }
+                    var initialBoard = getInitialBoard();
+                    if(angular.equals(params.stateBeforeMove.board,initialBoard) && params.toDelta === undefined){
+                        return true;
+                    }
+
+                    if(angular.equals(params.stateAfterMove.board,initialBoard)){
+                        return true;
+                    }
+
+
 
 
                     var board = params.stateBeforeMove.board;
@@ -138,23 +148,31 @@
                         }
                     }
 
-                    //Check that all blots that were taken entered before other moves were made
-                    for(var i = 0; i < toDelta.length; i++){
-                        if(playerCaptured(currentPlayer,board)){
-                            //If player didn't move off the taken spot then check if any other moves were made
-                            for(var j = 0; j<toDelta.length;j++){
+                    //Count the number of players on the taken spot
+                    if(playerCaptured(currentPlayer,board)){
+                        var indexToCheck = takenIndex(currentPlayer);
 
-                                //If a move was made that didn't remove a blot back onto the board then decalre an
-                                //illegal move
-
-                                if(fromDelta[j] !== '' && toDelta[j] !== '' && Math.abs(fromDelta[j] - toDelta[j]) > 0 &&
-                                    !(fromDelta[j] === 1 || fromDelta[j] === 26)){
-                                    console.log(145);
-                                    return false;
-                                }
-
+                        //count the number of pieces in the taken spot
+                        var numberTaken = 0;
+                        for(var i = 0; i<15;i++){
+                            if(board[indexToCheck][i] === currentPlayer){
+                                numberTaken += 1;
                             }
+                        }
 
+                        //count the number of moves from the taken spot
+                        var movesFromTaken = 0;
+                        for(var i = 0; i < fromDelta.length; i++){
+                            if(fromDelta[i]===indexToCheck){
+                                movesFromTaken+=1;
+                            }
+                        }
+
+                        //if the number of moves from the taken spot is less than the number taken and there are moves
+                        //taken then decalre an illegal move
+                        if(movesFromTaken < numberTaken && fromDelta.length > movesFromTaken){
+                            console.log(164);
+                            return false;
                         }
                     }
 
@@ -865,7 +883,7 @@
                     if(player === 'W' && board[1][0] ==='W') {
 
                         for (var i = 0; i < remainingMoves.length; i++) {
-                            if (heldBy(board, remainingMoves[i]) !== 'B') {
+                            if (heldBy(board, remainingMoves[i] + 1) !== 'B') {
                                 return true;
                             }
                         }
@@ -1016,7 +1034,7 @@
                                 newBoard = makeMove(newBoard,from,legalMoves,player);
                                 var test = getPossibleMoves(newBoard,remainingRolls,player);
 
-                                if(test !== false && test !== undefined){
+                                if(test !== false && test !== undefined && test !== []){
                                     for(var counter = 0 ; counter < test.length;counter++ ){
                                         var tempArray = [];
                                         angular.copy(currentResult,tempArray);
@@ -1100,7 +1118,8 @@
 
                                 legalToMove = fromPosition - singleRoll;
 
-                            } else if (fromPosition - singleRoll > 2 && canExit(board, player)) {
+                            } else if (fromPosition - singleRoll < 2 && canExit(board, player)) {
+                                console.log("Can exit reached");
                                 legalToMove = 0;
                             }
                         }
@@ -1124,77 +1143,121 @@
  */
 'use strict';
 angular.module('myApp')
-    .controller('Ctrl', ['$scope', '$log', '$timeout',
-        'gameService', 'stateService', 'backGammonLogicService',
-        'resizeGameAreaService',
-    function (
-        $scope, $log, $timeout,
-        gameService,stateService, backGammonLogicService, resizeGameAreaService) {
+    .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
+        'aiService','gameService', 'stateService', 'backGammonLogicService',
+        'resizeGameAreaService','$translate',
+
+        function (
+        $scope,$animate,$element, $log, $timeout,
+        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
         resizeGameAreaService.setWidthToHeight(1);
 
+        console.log("Translation of 'RULES_OF_TICTACTOE' is " + $translate('RULES_OF_BACKGAMMON'));
+        $scope.counter = 0;
+        $scope.initialBoard = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
+                ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+                ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+                ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+                ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+                ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+                ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+                ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+                ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27;
 
 
+        $scope.shouldSlowlyAppear = function(row,column){
+            if($scope.fromDelta.length === 0 || $scope.toDelta.length === 0){
+                return false;
+            }
+            var from = $scope.fromDelta[$scope.fromDelta.length - 1];
+            var to = $scope.toDelta[$scope.toDelta.length - 1];
+            var player = $scope.board[from][0];
+            var columnTo = -1;
+
+
+            for(var i  = 14; i >= 0; i--) {
+                if ($scope.board[to][i] === player) {
+                    columnTo = i;
+                    break;
+                }
+            }
+
+            if(to === row && column === columnTo){
+                return true;
+            }else{
+                return false;
+            }
+        };
+
+        function addAnimationFrom(){
+            var from = $scope.fromDelta[$scope.fromDelta.length - 1];
+            var to = $scope.toDelta[$scope.toDelta.length - 1];
+            var player = $scope.board[from][0];
+            var column = -1;
+
+
+            for(var i  = 14; i >= 0; i--) {
+                if ($scope.board[from][i] === player) {
+                    column = i;
+                    break;
+                }
+            }
+
+
+
+            var element1 = document.getElementById('e2e_test_piece_' + player + '_'+from+'_'+column);
+            $animate.addClass(element1, 'slowlyDisapear');
+
+        }
 
         function updateUI(params){
+            if((params.stateBeforeMove === null  && $scope.counter === 2)){
+                $scope.counter = 0;
 
-            var state = stateService.getMatchState();
-            console.log(state);
-                if(params.stateAfterMove.board === undefined){
-                    var temp = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-                        ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
-                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
-                        ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
-                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
-                        ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
-                        ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
-                        ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
-                        ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
-                        ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']];//opponent exits the board 27;
-                    $scope.board = temp;
-                }else{
-                    $scope.board = params.stateAfterMove.board;
-                }
+            }
+
+            if($scope.counter === 0){
+                $scope.counter = 1;
+                $scope.fromDelta = [];
+                $scope.toDelta = [];
+
+                $scope.board = $scope.initialBoard;
+                return;
+            }else if($scope.counter === 1){
+                $scope.counter = 2;
+                makeInitialMove();
+                return;
+            }
+
+                $scope.board = params.stateAfterMove.board;
 
                 $scope.fromDelta = [];
                 $scope.toDelta = [];
                 $scope.dice = [params.stateAfterMove.dice1, params.stateAfterMove.dice2];
-            $scope.dice1 = params.stateAfterMove.dice1;
-            $scope.dice2 = params.stateAfterMove.dice2;
+                $scope.dice1 = params.stateAfterMove.dice1;
+                $scope.dice2 = params.stateAfterMove.dice2;
                 $scope.turnIndex = params.turnIndexAfterMove;
 
 
-//
-//            if(params.stateBeforeMove === null){
-//                $scope.board = backGammonLogicService.getInitialBoard();
-//                $scope.fromDelta = [];
-//                $scope.toDelta = [];
-//                $scope.dice = [];
-//                $scope.turnIndex = 0;
-//            }else{
-//                $scope.board = params.stateAfterMove.board;
-//                $scope.fromDelta = [];
-//                $scope.toDelta = [];
-//                $scope.dice = $scope.rollDice();
-//                $scope.turnIndex = params.turnIndexAfterMove;
-//            }
             var tempDice =[];
             angular.copy($scope.dice,tempDice);
             tempDice = backGammonLogicService.totalMoves(tempDice);
@@ -1204,41 +1267,163 @@ angular.module('myApp')
             angular.copy($scope.board,tempBoard);
             $scope.originalBoard = tempBoard;
 
-
-            //If playing the computer then select a random move
-            if(params.playMode === "playAgainstTheComputer"){
-
-                var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,'B');
-
-                //Select random possible move
-                var selection = Math.floor(Math.random() * possibleMoves.length) + 1;
-
-                for(var i =0; i< possibleMoves.from.length; i++){
-                    $scope.clickPiece(possibleMoves.from[i]);
-                    $scope.clickSpace(possibleMoves.to[i]);
-                }
-
+            if($scope.turnIndex === 0){
+                var currentPlayer = 'W';
+            }else{
+                var currentPlayer = 'B';
             }
 
+            //Checking for initial fake make move
+//            $scope.isYourTurn = params.stateBeforeMove !== null &&          // -1 means game end, -2 means game viewer
+//                params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
+//
+//            console.log("player index: "+params.yourPlayerIndex);
+//            console.log("player index after: "+params.turnIndexAfterMove);
+//
+//            if ($scope.dice1 === undefined || $scope.dice1 == null){
+//                if($scope.isYourTurn){
+//                    debugger;
+//                    makeInitialMove();
+//                    return;
+//                }else{
+//                    return;
+//                }
+//            }
+
+            $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
+
+            //If playing the computer then select a random move
+            if(params.playMode === "playAgainstTheComputer" && $scope.turnIndex === 1 ||
+                params.playMode === "aisOnly"){
+                //$scope.$apply();
+                createComputerMover();
+            }
+        }
+
+        function isEmptyObj(obj){
+            for(var prop in obj) {
+                if(obj.hasOwnProperty(prop))
+                    return false;
+            }
+            return true;
+        }
+
+        function createComputerMover(){
+            var testingVaribale = true;
+
+            if($scope.turnIndex === 0){
+                var player = 'W';
+            }else{
+                var player = 'B';
+            }
+
+            var tempBoard = [[]];
+            var tempDiceArray =[];
+            angular.copy($scope.board,tempBoard);
+            angular.copy($scope.fullDiceArray,tempDiceArray);
+
+
+            var move = aiService.createComputerMove(tempBoard,tempDiceArray,player,$scope.possibleMoves);
+
+            try{
+                //if no legal move then switch turns
+                if(move === [] || move === undefined){
+                    testingVaribale = false;
+                    var turnIdx;
+                    if(player === 'W') {
+                        turnIdx = 1;
+                    }else {
+                        turnIdx = 0;
+                    }
+
+                    var setTurn = {setTurn: {turnIndex: turnIdx}};
+                    var move = [setTurn,
+                        {set: {key: 'board', value: $scope.board}},
+                        {set: {key: 'fromDelta', value: {fromDelta: $scope.fromDelta}}},
+                        {set: {key: 'toDelta', value: {toDelta: $scope.toDelta}}},
+                        {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                        {setRandomInteger: {key: 'dice2', from:1, to:7}}]
+                    gameService.makeMove(move);
+                }else{
+                    for(var i =0; i< move.from.length; i++){
+                        clickPieceInXMilliseconds(move.from[i], i * 2000);
+                        clickSpaceInXMilliseconds(move.to[i], 1000 + i * 2000);
+                    }
+                }
+            }catch(e){
+                $log.info("Illegal Move");
+                console.log(e);
+            }
+        }
+
+        function clickPieceInXMilliseconds(piece, milliseconds) {
+            $timeout(function () {
+                $scope.clickPiece(piece);
+            }, milliseconds);
+        }
+
+        function clickSpaceInXMilliseconds(piece, milliseconds) {
+            $timeout(function () {
+                $scope. clickSpace(piece);
+            }, milliseconds);
+        }
+
+        window.e2e_test_statexService = stateService;
+
+        window.handleDragEvent = function(event, type, clientX, clientY){
+            var id = event.target.id;
+            if(type === 'touchstart' && isPiece(id)){
+                $scope.clickPiece(getRow(id));
+            }else if(type === 'touchend' && isBgSpace(id)){
+                $scope.clickSpace(getRow(id));
+            }
+        };
+
+
+        function isPiece(id){
+            if( id.indexOf("piece") > -1){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        function isBgSpace(id){
+            if(id.indexOf("space") > -1){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        function getRow(id){
+            var splitString = id.split("_");
+
+            if(isPiece(id)){
+                return parseInt(splitString[4]);
+            }else if(isBgSpace(id)){
+                return parseInt(splitString[3]);
+            }else{
+                return false;
+            }
 
         }
 
-        window.e2e_test_stateService = stateService;
-
-        //window.e2e_test_scope = $scope; //load the scope into e2e test
-
-
 
         $scope.clickPiece = function(row){
-
-            console.log("piece clicked");
+            checkInvariant();
+            if($scope.fullDiceArray.length === 4){
+                var debugStmt = '';
+            }
 
             //If it is my turn
             if($scope.turnIndex === 0 && $scope.board[row][0] !== 'W'){
                 $log.info("White turn, clicked on black player");
+                $scope.$apply();
                 return;
             }else if($scope.turnIndex === 1 && $scope.board[row][0] !== 'B'){
                 $log.info("Black turn, clicked on white player");
+                $scope.$apply();
                 return;
             }
 
@@ -1246,11 +1431,15 @@ angular.module('myApp')
            //then replace the last from else just add the from
             if($scope.fromDelta.length === $scope.toDelta.length){
                 $scope.fromDelta.push(row);
+                $scope.$apply();
                 return;
             }else if($scope.fromDelta.length !== $scope.toDelta.length){
                 $scope.fromDelta[$scope.fromDelta.length - 1] = row;
+                $scope.$apply();
                 return;
             }
+            $scope.$apply();
+            checkInvariant();
         };
 
         function updateCurrentBoard(from, to){
@@ -1270,13 +1459,19 @@ angular.module('myApp')
             }
         }
 
-        $scope.clickSpace = function(row){
+        function checkInvariant() {
+            if ($scope.toDelta.length !== $scope.fromDelta.length && $scope.toDelta.length !== $scope.fromDelta.length - 1) {
+                throw new Error("Invariant broken: fromDelta=" + $scope.fromDelta + " toDelta=" + $scope.toDelta);
+            }
+        }
 
-            console.log("SUCESS: " + row);
+        $scope.clickSpace = function(row){
+            checkInvariant();
 
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length === $scope.fromDelta.length){
                 console.log("Must select a piece to move first");
+                return;
             }
 
             var currentPlayer;
@@ -1298,17 +1493,10 @@ angular.module('myApp')
                 $log.info("Not blacks turn");
             }else{
 
-                //check if the space being moved to is held by the opposing player if it is then don't allow
-                if(backGammonLogicService.heldBy($scope.board,row) === opposingPlayer){
-                    console.log("positoin held by opposing player");
-                    return;
-                }
-                console.log("full dice array before:");
-                console.log($scope.fullDiceArray);
+
                 //Check if the player is trying to exit the board, if so can they
                 var possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
-                console.log("full dice array after:");
-                console.log($scope.fullDiceArray);
+
                 var madeLegalMove = false;
 
                 //Check the first of the from to moves to see if it is possible form teh current board
@@ -1341,8 +1529,32 @@ angular.module('myApp')
                     if(possibleMoves === false){
                         if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
                             try{
-                                var move = backGammonLogicService
-                                    .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+                                //remove latest clicked from delta
+                                $scope.fromDelta.pop();
+
+                                //Create a partial move if there was one,
+                                if($scope.fromDelta.length > 0){
+                                    var move = backGammonLogicService
+                                        .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+
+                                }else{
+                                    var turnIdx;
+                                    if(currentPlayer === 'W') {
+                                        turnIdx = 1;
+                                    }else {
+                                        turnIdx = 0;
+                                    }
+
+                                    var setTurn = {setTurn: {turnIndex: turnIdx}};
+                                    var move = [setTurn,
+                                        {set: {key: 'board', value: $scope.board}},
+                                        {set: {key: 'fromDelta', value: {fromDelta: $scope.fromDelta}}},
+                                        {set: {key: 'toDelta', value: {toDelta: $scope.toDelta}}},
+                                        {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                                        {setRandomInteger: {key: 'dice2', from:1, to:7}}]
+                                }
+
+
 
                                 console.log("move being made");
                                 gameService.makeMove(move);
@@ -1359,30 +1571,42 @@ angular.module('myApp')
                 }else{
                     //Push the move through and check if that is the last remaining move to be made before the
                     //full move is submitted
+
                     $scope.toDelta.push(row);
-                    backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
-                    //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
+                    addAnimationFrom();
+                    var wait = 500;
+                    $timeout(function(){
+                        backGammonLogicService.makeMove($scope.board,$scope.fromDelta[$scope.fromDelta.length -1], row, currentPlayer);
+                        //updateCurrentBoard($scope.fromDelta[$scope.fromDelta.length -1], row);
 
-                    angular.copy($scope.dice, $scope.fullDiceArray);
-                    $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray)
-                    backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
+                        angular.copy($scope.dice, $scope.fullDiceArray);
+                        $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray);
+                        backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
 
 
-                    //Check if there are any remaining legal moves. If not then send the move
-                    if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
-                        try{
-                            var move = backGammonLogicService
-                                .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+                        //addAnimationTo();
 
-                            console.log("move being made");
-                            gameService.makeMove(move);
-                        }catch(e){
-                            $log.info("Illegal Move");
-                            console.log(e);
+                        //Check if there are any remaining legal moves. If not then send the move
+                        if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
+                            try{
+                                var move = backGammonLogicService
+                                    .createMove($scope.turnIndex,$scope.originalBoard,$scope.fromDelta,$scope.toDelta, $scope.dice);
+
+                                console.log("move being made");
+
+                                gameService.makeMove(move);
+                            }catch(e){
+                                $log.info("Illegal Move");
+                                console.log(e);
+                            }
                         }
-                    }
+                    },wait);
+
+
+
                 }
             }
+            $scope.$apply();
         };
 
         //Gives the total number of moves that can be made, expands the dice to 4 items if doubles are rolled
@@ -1413,14 +1637,58 @@ angular.module('myApp')
 
         $scope.getImageSource = function(row,col){
             //From the board in scope
+            if($scope.board === undefined){
+                $scope.board = initialBoard;
+            }
             var cell = $scope.board[row][col];
 
+            var colOfMove = -1;
+            var returnObject = {imgSource: '', isBlackMan: false,isWhiteMan : false, isSelected: false};
+            var initialState = false;
+            if($scope.fromDelta === undefined || $scope.fromDelta === null || $scope.fromDelta.length === 0){
+                initialState = true;
+            }
+            //If a move in progress then highlight the blot
+            if(!initialState){
+                if($scope.fromDelta.length > $scope.toDelta.length &&
+                    $scope.fromDelta[$scope.fromDelta.length - 1] === row){
+
+                    for(var i =14; i >= 0; i--){
+                        if($scope.board[row][i] !== ""){
+                            colOfMove = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+
             if(cell === 'W'){
-                return 'white_man.png'
+                if(colOfMove === col){
+                    returnObject.imgSource = 'white_man_selected.png';
+                    returnObject.isWhiteMan = true;
+                    returnObject.isSelected = true;
+                    return returnObject;
+                }else{
+                    returnObject.imgSource = 'white_man.png';
+                    returnObject.isWhiteMan = true;
+                    return returnObject;
+                }
+
+
             }else if(cell === 'B'){
-                return 'black_man.png'
+                if(colOfMove === col){
+                    returnObject.imgSource = "black_man_selected.png";
+                    returnObject.isBlackMan = true;
+                    returnObject.isSelected = true;
+                    return returnObject;
+                }else{
+                    returnObject.imgSource = 'black_man.png';
+                    returnObject.isBlackMan = true;
+                    return returnObject;
+                }
             }else{
-                return '';
+                return returnObject;
             }
         };
 
@@ -1551,40 +1819,42 @@ angular.module('myApp')
             updateUI: updateUI
         });
 
+        function makeInitialMove(){
+            gameService.makeMove([{set: {key: 'board', value: [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
+                ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
+                ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
+                ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
+                ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
+                ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
+                ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
+                ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
+                ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
+                ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']]}},
+                {set: {key: 'fromDelta', value: {fromDelta: []}}},
+                {set: {key: 'toDelta', value: {toDelta: []}}},
+                {setTurn: {turnIndex: 0}},
+                {setRandomInteger: {key: 'dice1', from:1, to:7}},
+                {setRandomInteger: {key: 'dice2', from:1, to:7}}]);
+        }
 
-        gameService.makeMove([{set: {key: 'board', value: [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
-            ['W', 'W', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//start game board 24   2
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//23  3
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//22  4
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//21  5
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//20  6
-            ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//19 7
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//18  8
-            ['B', 'B', 'B', '' , '', '', '', '', '' ,'' ,'', '','','',''],//17  9
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//16 10
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//15 11
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//14 12
-            ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//13 13
-            ['B', 'B', 'B', 'B' , 'B', '', '', '', '' ,'' ,'', '','','',''],//12 14
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//11 15
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//10 16
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//9 17
-            ['W', 'W', 'W', '' , '', '', '', '', '' ,'' ,'', '','','',''],//8 18
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//7 19
-            ['W', 'W', 'W', 'W' , 'W', '', '', '', '' ,'' ,'', '','','',''],//6 20
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//5 21
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//4 22
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//3 23
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//2 24
-            ['B', 'B', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//end game board //1 25
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken 26
-            ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','','']]}},
-            {set: {key: 'fromDelta', value: {fromDelta: []}}},
-            {set: {key: 'toDelta', value: {toDelta: []}}},
-            {setTurn: {turnIndex: 0}},
-            {setRandomInteger: {key: 'dice1', from:1, to:7}},
-            {setRandomInteger: {key: 'dice2', from:1, to:7}}]);
 
 //        [setTurn,
 //            {set: {key: 'board', value: currentBoard}},
@@ -1593,4 +1863,145 @@ angular.module('myApp')
 //            {setRandomInteger: {key: 'dice1', from:1, to:7}},
 //            {setRandomInteger: {key: 'dice2', from:1, to:7}}]
 
-    }]);
+    }]);;/**
+ * Created by islam on 4/4/15.
+ */
+
+angular.module('myApp').factory('aiService' , ['backGammonLogicService',
+function(backGammonLogicService){
+    'use strict';
+
+    function createComputerMove(board, rollArray, player, possibleMoves){
+        var start = new Date().getTime();
+        var topScore = -1;
+        var bestMove = 0;
+
+        //create board for the move
+        for (var i = 0; i < possibleMoves.length;i++){
+            var currentBoard =[[]];
+            angular.copy(board,currentBoard);
+
+
+            for(var j = 0; j < possibleMoves[i].from.length; j++){
+                currentBoard =
+                    backGammonLogicService.makeMove(currentBoard,possibleMoves[i].from[j],possibleMoves[i].to[j],player);
+            }
+
+            var score = scoreBoard(player,currentBoard);
+            if(score > topScore){
+                topScore = score;
+                bestMove = i;
+            }
+        }
+        //return the move with the max score
+        var end = new Date().getTime();
+        console.log(end - start);
+        return possibleMoves[bestMove];
+
+    }
+
+    function scoreBoard(player, board){
+        if(player === 'W'){
+            return scoreWhiteBoard(board);
+        }else{
+            return scoreBlackBoard(board);
+        }
+    }
+
+    function scoreWhiteBoard(board){
+        var score = 0;
+        for(var row = 2; row <= 27; row++ ){
+            for(var column = 0; column <= 14; column ++){
+                var pointIndexForScoring = row - 1;
+
+                //Scoring for most of the board, will give bonus for moving to
+                //home board
+                if(row >=2 && row < 21 && board[row][column] === 'W'){
+                    //Score .5 * position index if no house built
+                    if(column === 0){
+                        score += .5 * pointIndexForScoring;
+                    }else{ //Score .75 * position index if house built
+                        score += .75 * pointIndexForScoring;
+                    }
+                }
+
+                if(row >= 19 && row<= 25 && board[row][column] === 'W'){
+                    if(column === 0){
+                        //Discourage additional movment on the home board, move other players forward first
+                        score+= .85 * 20 + pointIndexForScoring * .01;
+                    }else{
+                        score += .90 * 20 + pointIndexForScoring * .01;
+                    }
+                }
+
+                //If opponent piece taken then 10 points
+                if(row === 26 && board[row][column] === 'B'){
+                    score += 20;
+                }
+
+                //Highly favor exiting the board
+                if(row === 27 && column !== 14 && board[row][column] === 'W'){
+                    score += 30;
+                }
+
+                //If can exit the final piece then do it!!
+                if(row === 27 && column === 14 && board[row][column] === 'W'){
+                    score += 1000000000;
+            }
+
+            }
+        }
+        return score;
+    }
+
+    function scoreBlackBoard(board){
+        var score = 0;
+        var valuesForScoring = [27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0];
+
+        for(var row = 0; row <= 25; row++ ){
+            for(var column = 0; column <= 14; column ++){
+                var pointIndexForScoring = valuesForScoring[row] - 1;
+
+                //Scoring for most of the board, will give bonus for moving to
+                //home board
+                if(row >=8 && row < 26 && board[row][column] === 'B'){
+                    //Score .5 * position index if no house built
+                    if(column === 0){
+                        score += .5 * pointIndexForScoring;
+                    }else{ //Score .75 * position index if house built
+                        score += .75 * pointIndexForScoring;
+                    }
+                }
+
+                if(row <= 7 && row > 1 && board[row][column] === 'B'){
+                    if(column === 0){
+                        score+= .85 * 20 + pointIndexForScoring * .01;
+                    }else{
+                        score += .90 * 20 + pointIndexForScoring * .01;
+                    }
+                }
+
+                //If opponent piece taken then 20 points
+                if(row === 1 && board[row][column] === 'W'){
+                    score += 20;
+                }
+
+                //Highly favor exiting the board
+                if(row === 0 && column !== 14 && board[row][column] === 'B'){
+                    score += 30;
+                }
+
+                //If can exit the final piece then do it!!
+                if(row === 0 && column === 14 && board[row][column] === 'B'){
+                    score += 1000000000;
+                }
+            }
+
+        }
+
+        return score;
+    }
+
+    return {createComputerMove: createComputerMove};
+
+}]);
