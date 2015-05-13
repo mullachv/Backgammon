@@ -57,7 +57,7 @@ module.exports = function(grunt) {
       },
       dist: {
         // Order is important! gameLogic.js must be first because it defines myApp angular module.
-        src: ['BackgammonLogicService.js', 'game.js','aiService.js'],
+        src: ['BackgammonLogicService.js','listener.js', 'game.js','aiService.js'],
         dest: 'dist/everything.js',
       },
     },
