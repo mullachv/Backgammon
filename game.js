@@ -327,7 +327,7 @@ angular.module('myApp')
 
         $scope.clickSpace = function(row){
             checkInvariant();
-
+            console.log("Space Clicked: " + row);
             //If the number of spaces is equal to the fromDelta array size then don't make a move ()
             if($scope.toDelta.length === $scope.fromDelta.length){
                 console.log("Must select a piece to move first");
