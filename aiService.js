@@ -27,10 +27,11 @@ function(backGammonLogicService){
                 topScore = score;
                 bestMove = i;
             }
+            //Put timer for checking possibilities
+            if(new Date().getTime() - start >= 1000){
+                return possibleMoves[bestMove];
+            }
         }
-        //return the move with the max score
-        var end = new Date().getTime();
-        console.log(end - start);
         return possibleMoves[bestMove];
 
     }

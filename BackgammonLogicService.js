@@ -1022,9 +1022,6 @@
                             var legalMoves = getLegalMoves(currentBoard,player,currentRoll,from);
                             var currentResult = {from:[from], to:[legalMoves]};
 
-                            if(currentResult.from[0] === 2){
-                                var wait = "wait";
-                            }
 
                             if(legalMoves !== false){
 

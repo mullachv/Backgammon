@@ -1022,9 +1022,6 @@
                             var legalMoves = getLegalMoves(currentBoard,player,currentRoll,from);
                             var currentResult = {from:[from], to:[legalMoves]};
 
-                            if(currentResult.from[0] === 2){
-                                var wait = "wait";
-                            }
 
                             if(legalMoves !== false){
 
@@ -1198,7 +1195,6 @@ angular.module('myApp')
         aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
         resizeGameAreaService.setWidthToHeight(1);
 
-        console.log("Translation of 'RULES_OF_TICTACTOE' is " + $translate('RULES_OF_BACKGAMMON'));
         $scope.counter = 0;
         $scope.initialBoard = [['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//opponent exists the board
                 ['', '', '', '' , '', '', '', '', '' ,'' ,'', '','','',''],//blots taken
@@ -1319,22 +1315,6 @@ angular.module('myApp')
                 var currentPlayer = 'B';
             }
 
-            //Checking for initial fake make move
-//            $scope.isYourTurn = params.stateBeforeMove !== null &&          // -1 means game end, -2 means game viewer
-//                params.yourPlayerIndex === params.turnIndexAfterMove;     // it's my turn
-//
-//            console.log("player index: "+params.yourPlayerIndex);
-//            console.log("player index after: "+params.turnIndexAfterMove);
-//
-//            if ($scope.dice1 === undefined || $scope.dice1 == null){
-//                if($scope.isYourTurn){
-//                    debugger;
-//                    makeInitialMove();
-//                    return;
-//                }else{
-//                    return;
-//                }
-//            }
 
             $scope.possibleMoves = backGammonLogicService.getPossibleMoves($scope.board,$scope.fullDiceArray,currentPlayer);
 
@@ -1629,8 +1609,6 @@ angular.module('myApp')
                         $scope.fullDiceArray = backGammonLogicService.totalMoves($scope.fullDiceArray);
                         backGammonLogicService.getUnusedRolls($scope.fromDelta,$scope.toDelta, $scope.fullDiceArray);
 
-
-                        //addAnimationTo();
 
                         //Check if there are any remaining legal moves. If not then send the move
                         if(!backGammonLogicService.hasLegalMove($scope.board,$scope.fullDiceArray,currentPlayer)){
@@ -1938,10 +1916,11 @@ function(backGammonLogicService){
                 topScore = score;
                 bestMove = i;
             }
+            //Put timer for checking possibilities
+            if(new Date().getTime() - start >= 1000){
+                return possibleMoves[bestMove];
+            }
         }
-        //return the move with the max score
-        var end = new Date().getTime();
-        console.log(end - start);
         return possibleMoves[bestMove];
 
     }
