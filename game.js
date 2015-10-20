@@ -4,12 +4,11 @@
 'use strict';
 angular.module('myApp')
     .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
-        'aiService','gameService', 'stateService', 'backGammonLogicService',
-        'resizeGameAreaService','$translate',
+        'aiService', 'backGammonLogicService',
 
         function (
         $scope,$animate,$element, $log, $timeout,
-        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
+        aiService, backGammonLogicService) {
         resizeGameAreaService.setWidthToHeight(1);
 
         $scope.counter = 0;
