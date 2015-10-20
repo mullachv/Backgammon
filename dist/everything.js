@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    angular.module('myApp', ['ngTouch','ui.bootstrap']).factory('backGammonLogicService',
+    angular.module('myApp', ['backGammonLogicService','ngTouch','ui.bootstrap']).factory('backGammonLogicService',
             function () {
 
                 // This is a simple implementation for constant and enum, so the value
@@ -1187,12 +1187,11 @@
 'use strict';
 angular.module('myApp')
     .controller('Ctrl', ['$scope','$animate','$element', '$log', '$timeout',
-        'aiService','gameService', 'stateService', 'backGammonLogicService',
-        'resizeGameAreaService','$translate',
+        'backGammonLogicService',
 
         function (
         $scope,$animate,$element, $log, $timeout,
-        aiService, gameService,stateService, backGammonLogicService, resizeGameAreaService,$translate) {
+        backGammonLogicService) {
         resizeGameAreaService.setWidthToHeight(1);
 
         $scope.counter = 0;
